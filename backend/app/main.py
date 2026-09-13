@@ -14,7 +14,8 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from backend.app.core.config import settings
 from backend.app.api.api import api_router
@@ -68,12 +69,28 @@ def health_check():
         "version": settings.VERSION,
     }
 
-@app.get("/", tags=["Root"])
-def root():
-    return {
-        "product": settings.PROJECT_NAME,
-        "tagline": "One command center for every store, product, customer and rupee.",
-        "docs": "/docs",
-        "health": "/health",
-        "api": f"{settings.API_V1_STR}/overview"
-    }
+# Check if production frontend build exists (Docker / Production deployment)
+DIST_DIR = PROJECT_ROOT / "frontend" / "dist"
+
+if DIST_DIR.exists() and (DIST_DIR / "index.html").exists():
+    assets_dir = DIST_DIR / "assets"
+    if assets_dir.exists():
+        app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def serve_spa(full_path: str):
+        file_path = DIST_DIR / full_path
+        if file_path.is_file():
+            return FileResponse(str(file_path))
+        return FileResponse(str(DIST_DIR / "index.html"))
+else:
+    @app.get("/", tags=["Root"])
+    def root():
+        return {
+            "product": settings.PROJECT_NAME,
+            "tagline": "One command center for every store, product, customer and rupee.",
+            "docs": "/docs",
+            "health": "/health",
+            "api": f"{settings.API_V1_STR}/overview"
+        }
+

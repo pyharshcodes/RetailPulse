@@ -1,0 +1,26 @@
+# Git
+.git
+.gitignore
+
+# Node / Frontend
+frontend/node_modules
+frontend/dist
+.npm
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+venv
+env
+.env
+
+# Temporary SQLite locks
+backend/data/*.db-wal
+backend/data/*.db-shm
+backend/data/*.db-journal
+
+# Logs
+*.log
