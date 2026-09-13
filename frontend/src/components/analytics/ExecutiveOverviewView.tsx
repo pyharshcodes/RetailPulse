@@ -27,6 +27,7 @@ export const ExecutiveOverviewView: React.FC<{ onNavigate: (tab: string, id?: st
   const [data, setData] = useState<ExecutiveOverviewData | null>(null);
   const [loading, setLoading] = useState(true);
   const [attributionMetric, setAttributionMetric] = useState<string | null>(null);
+  const [activeSideTab, setActiveSideTab] = useState<'stores' | 'highlights' | 'targets'>('stores');
 
   useEffect(() => {
     setLoading(true);
@@ -39,18 +40,18 @@ export const ExecutiveOverviewView: React.FC<{ onNavigate: (tab: string, id?: st
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-28 bg-white rounded-xl border border-slate-200 animate-pulse p-4">
-              <div className="h-3 bg-slate-200 rounded w-1/2 mb-3"></div>
-              <div className="h-6 bg-slate-200 rounded w-3/4"></div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-28 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 animate-pulse p-4">
+              <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded w-1/2 mb-3"></div>
+              <div className="h-6 bg-slate-200 dark:bg-slate-800 rounded w-3/4"></div>
             </div>
           ))}
         </div>
-        <SkeletonLoader label="Computing network revenue trend and targets..." height="h-72" />
+        <SkeletonLoader label="Computing network sales and targets..." height="h-72" />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <SkeletonLoader label="Aggregating category mix..." height="h-64" />
-          <SkeletonLoader label="Calculating store leaderboards..." height="h-64" />
+          <SkeletonLoader label="Aggregating sales by category..." height="h-64" />
+          <SkeletonLoader label="Loading store leaderboard..." height="h-64" />
         </div>
       </div>
     );
@@ -107,7 +108,7 @@ export const ExecutiveOverviewView: React.FC<{ onNavigate: (tab: string, id?: st
     },
     series: [
       {
-        name: 'Actual Revenue',
+        name: 'Actual Sales',
         type: 'bar',
         data: revenue_trend.map(t => t.revenue),
         itemStyle: {
@@ -140,9 +141,9 @@ export const ExecutiveOverviewView: React.FC<{ onNavigate: (tab: string, id?: st
         const item = params[0];
         const cat = category_performance.find(c => c.category === item.name);
         return `<div class="font-bold">${item.name}</div>
-          <div class="text-[11px] text-slate-300 mt-1">Revenue: <b>${formatINR(item.value)}</b></div>
-          <div class="text-[11px] text-brand-300">Gross Margin: <b>${cat?.gross_margin}%</b></div>
-          <div class="text-[11px] text-slate-400">Share: <b>${cat?.revenue_share}%</b></div>`;
+          <div class="text-[11px] text-slate-300 mt-1">Sales: <b>${formatINR(item.value)}</b></div>
+          <div class="text-[11px] text-emerald-300">Profit Margin: <b>${cat?.gross_margin}%</b></div>
+          <div class="text-[11px] text-slate-400">Share of Total: <b>${cat?.revenue_share}%</b></div>`;
       }
     },
     grid: { top: 15, right: 25, bottom: 20, left: 120 },
@@ -160,7 +161,7 @@ export const ExecutiveOverviewView: React.FC<{ onNavigate: (tab: string, id?: st
       type: 'category',
       data: category_performance.map(c => c.category).reverse(),
       axisLine: { lineStyle: { color: '#E2E8F0' } },
-      axisLabel: { color: '#334155', fontSize: 10 }
+      axisLabel: { color: '#64748B', fontSize: 10 }
     },
     series: [
       {
@@ -180,10 +181,12 @@ export const ExecutiveOverviewView: React.FC<{ onNavigate: (tab: string, id?: st
 
   return (
     <div className="space-y-6">
-      {/* 1. Executive KPI Cards (6 cards) */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+      {/* LEVEL 1: Quick Understanding (5 Seconds) */}
+      
+      {/* Primary 4 KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard
-          title="Net Revenue"
+          title="Total Sales"
           current={kpis.revenue.current}
           previous={kpis.revenue.previous}
           pctChange={kpis.revenue.percentage_change}
@@ -194,7 +197,7 @@ export const ExecutiveOverviewView: React.FC<{ onNavigate: (tab: string, id?: st
           highlight={true}
         />
         <KPICard
-          title="Gross Profit"
+          title="Net Profit"
           current={kpis.gross_profit.current}
           previous={kpis.gross_profit.previous}
           pctChange={kpis.gross_profit.percentage_change}
@@ -204,17 +207,17 @@ export const ExecutiveOverviewView: React.FC<{ onNavigate: (tab: string, id?: st
           onInspect={() => setAttributionMetric('gross_profit')}
         />
         <KPICard
-          title="Gross Margin"
+          title="Profit Margin"
           current={kpis.gross_margin.current}
           previous={kpis.gross_margin.previous}
           pctChange={kpis.gross_margin.percentage_change}
           absChange={kpis.gross_margin.absolute_change}
           type="percent"
           icon={<Percent className="w-4 h-4" />}
-          subtitle="Weighted"
+          subtitle="Net return"
         />
         <KPICard
-          title="Total Orders"
+          title="Orders Placed"
           current={kpis.orders.current}
           previous={kpis.orders.previous}
           pctChange={kpis.orders.percentage_change}
@@ -222,118 +225,72 @@ export const ExecutiveOverviewView: React.FC<{ onNavigate: (tab: string, id?: st
           type="number"
           icon={<ShoppingCart className="w-4 h-4" />}
         />
-        <KPICard
-          title="Units Sold"
-          current={kpis.units.current}
-          previous={kpis.units.previous}
-          pctChange={kpis.units.percentage_change}
-          absChange={kpis.units.absolute_change}
-          type="number"
-          icon={<Package className="w-4 h-4" />}
-          onInspect={() => setAttributionMetric('units')}
-        />
-        <KPICard
-          title="Average Order (AOV)"
-          current={kpis.aov.current}
-          previous={kpis.aov.previous}
-          pctChange={kpis.aov.percentage_change}
-          absChange={kpis.aov.absolute_change}
-          type="currency"
-          icon={<StoreIcon className="w-4 h-4" />}
-        />
       </div>
 
-      {/* 2. Target Achievement Banner & Factual Highlights */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* Target Realization Card */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-subtle flex flex-col justify-between">
-          <div>
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Period Target Realization
-            </div>
-            <div className="mt-2 flex items-baseline justify-between">
-              <span className="text-2xl font-bold font-mono text-slate-900">
-                {targets.revenue_achievement}%
-              </span>
-              <span className={`text-xs font-semibold ${targets.variance >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
-                {targets.variance >= 0 ? '+' : ''}{formatINR(targets.variance)}
-              </span>
-            </div>
-            {/* Progress bar */}
-            <div className="w-full bg-slate-100 rounded-full h-2 mt-3 overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all duration-500 ${
-                  targets.revenue_achievement >= 100 ? 'bg-emerald-500' : 'bg-brand-500'
-                }`}
-                style={{ width: `${Math.min(targets.revenue_achievement, 100)}%` }}
-              />
-            </div>
+      {/* Secondary Operational Quick-Strip */}
+      <div className="bg-white dark:bg-slate-900 px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="flex flex-wrap items-center gap-6 text-slate-600 dark:text-slate-300">
+          <div className="flex items-center space-x-2">
+            <Package className="w-4 h-4 text-brand-500" />
+            <span>Items Sold:</span>
+            <span className="font-mono font-bold text-slate-900 dark:text-white">{formatNumber(kpis.units.current)}</span>
           </div>
-
-          <div className="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-500 flex justify-between">
-            <span>Target: {formatINR(targets.target_revenue)}</span>
-            <span>Realized: {formatINR(kpis.revenue.current)}</span>
+          <div className="hidden sm:flex items-center space-x-2">
+            <StoreIcon className="w-4 h-4 text-brand-500" />
+            <span>Avg Spend per Order:</span>
+            <span className="font-mono font-bold text-slate-900 dark:text-white">{formatINR(kpis.aov.current)}</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span>Annual Goal Reached:</span>
+            <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{targets.revenue_achievement}%</span>
           </div>
         </div>
 
-        {/* Factual Highlights Banner (3 cols) */}
-        <div className="lg:col-span-3 bg-slate-900 text-slate-100 p-5 rounded-xl border border-slate-800 shadow-subtle">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-brand-400">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Automated Executive Findings</span>
-            </div>
-            <span className="text-[10px] text-slate-400 font-mono">Real-time computation</span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-            {highlights.map((h, i) => (
-              <div key={i} className="p-2.5 rounded-lg bg-slate-800/60 border border-slate-700/60 flex items-start space-x-2">
-                <span className={`w-1.5 h-1.5 rounded-full shrink-0 mt-1.5 ${
-                  h.impact === 'positive' ? 'bg-emerald-400' : h.impact === 'negative' ? 'bg-rose-400' : 'bg-brand-400'
-                }`} />
-                <div>
-                  <div className="font-semibold text-white text-[11px]">{h.title}</div>
-                  <div className="text-slate-300 text-[11px] mt-0.5 leading-snug">{h.text}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <button
+          onClick={() => setAttributionMetric('revenue')}
+          className="text-xs font-semibold text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 flex items-center space-x-1"
+        >
+          <span>Explain what changed</span>
+          <ChevronRight className="w-3.5 h-3.5" />
+        </button>
       </div>
 
-      {/* 3. Revenue vs Target Trend Line */}
-      <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-subtle">
-        <div className="flex items-center justify-between mb-4">
+      {/* Primary Chart: Monthly Sales vs Target */}
+      <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
           <div>
-            <h3 className="text-sm font-bold text-slate-900">Monthly Revenue vs Target</h3>
-            <p className="text-xs text-slate-500">Track seasonal realization against budgeted monthly goals across the retail network.</p>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Sales Over Time</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Actual monthly sales compared to budgeted targets across all 20 store locations.
+            </p>
           </div>
           <button
             onClick={() => onNavigate('sales')}
-            className="flex items-center space-x-1 text-xs text-brand-600 hover:text-brand-700 font-semibold"
+            className="flex items-center space-x-1 text-xs text-brand-600 dark:text-brand-400 hover:text-brand-700 font-semibold self-start sm:self-auto"
           >
-            <span>Full Sales Details</span>
+            <span>View Sales Trends</span>
             <ArrowUpRight className="w-3.5 h-3.5" />
           </button>
         </div>
-        <EChart option={trendChartOption} height="300px" />
+        <EChart option={trendChartOption} height="280px" />
       </div>
 
-      {/* 4. Category Performance & Top Stores Leaderboard */}
+      {/* LEVEL 2: Understanding Why (30 Seconds) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Category Performance Breakdown */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-subtle flex flex-col justify-between">
+        {/* Where Sales Came From (Category Breakdown) */}
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-3">
               <div>
-                <h3 className="text-sm font-bold text-slate-900">Category Revenue & Margin Mix</h3>
-                <p className="text-xs text-slate-500">Ranked by net sales volume.</p>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">Where Sales Came From</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Sales volume and profit margins across product categories.</p>
               </div>
               <button
                 onClick={() => onNavigate('products')}
-                className="text-xs text-brand-600 hover:text-brand-700 font-medium"
+                className="text-xs text-brand-600 dark:text-brand-400 hover:text-brand-700 font-medium"
               >
-                All SKUs →
+                All Products →
               </button>
             </div>
             <EChart
@@ -348,76 +305,175 @@ export const ExecutiveOverviewView: React.FC<{ onNavigate: (tab: string, id?: st
               }}
             />
           </div>
-          <div className="text-[11px] text-slate-400 italic text-center pt-2">
-            Tip: Click any category bar to filter the entire dashboard.
+          <div className="text-[11px] text-slate-400 dark:text-slate-500 italic text-center pt-2">
+            Tip: Click any category bar to filter the whole dashboard.
           </div>
         </div>
 
-        {/* Top Stores Leaderboard Table */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-subtle flex flex-col justify-between">
+        {/* Tabbed Side Panel: Top Stores | Key Highlights | Goals */}
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <h3 className="text-sm font-bold text-slate-900">Store Performance Leaderboard</h3>
-                <p className="text-xs text-slate-500">Top revenue generating store locations.</p>
+            {/* Tab Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 mb-4">
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setActiveSideTab('stores')}
+                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                    activeSideTab === 'stores'
+                      ? 'bg-slate-900 dark:bg-brand-600 text-white shadow-sm'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800'
+                  }`}
+                >
+                  Top Stores
+                </button>
+                <button
+                  onClick={() => setActiveSideTab('highlights')}
+                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                    activeSideTab === 'highlights'
+                      ? 'bg-slate-900 dark:bg-brand-600 text-white shadow-sm'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800'
+                  }`}
+                >
+                  Key Highlights
+                </button>
+                <button
+                  onClick={() => setActiveSideTab('targets')}
+                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                    activeSideTab === 'targets'
+                      ? 'bg-slate-900 dark:bg-brand-600 text-white shadow-sm'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800'
+                  }`}
+                >
+                  Goal Progress
+                </button>
               </div>
-              <button
-                onClick={() => onNavigate('stores')}
-                className="text-xs text-brand-600 hover:text-brand-700 font-medium"
-              >
-                View all 20 Stores →
-              </button>
+
+              {activeSideTab === 'stores' && (
+                <button
+                  onClick={() => onNavigate('stores')}
+                  className="text-xs text-brand-600 dark:text-brand-400 hover:text-brand-700 font-medium"
+                >
+                  All 20 Stores →
+                </button>
+              )}
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead>
-                  <tr className="border-b border-slate-200 text-[11px] font-semibold text-slate-500">
-                    <th className="pb-2.5">Store Location</th>
-                    <th className="pb-2.5">Region</th>
-                    <th className="pb-2.5 text-right">Revenue</th>
-                    <th className="pb-2.5 text-right">Margin %</th>
-                    <th className="pb-2.5 text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {top_stores.map((s) => (
-                    <tr
-                      key={s.store_id}
-                      className="hover:bg-slate-50 transition-colors cursor-pointer group"
-                      onClick={() => onNavigate('stores', s.store_id)}
-                    >
-                      <td className="py-2.5 font-medium text-slate-800 flex items-center">
-                        <span className="w-1.5 h-1.5 rounded-full bg-brand-500 mr-2 group-hover:scale-125 transition-transform"></span>
-                        <span className="truncate max-w-[150px]">{s.store_name.replace('Vertex ', '')}</span>
-                      </td>
-                      <td className="py-2.5 text-slate-500">{s.region}</td>
-                      <td className="py-2.5 text-right font-mono font-medium text-slate-900">
-                        {formatINR(s.revenue)}
-                      </td>
-                      <td className="py-2.5 text-right font-mono text-slate-700">
-                        {s.margin_percent}%
-                      </td>
-                      <td className="py-2.5 text-right">
-                        <span className="text-brand-600 group-hover:text-brand-800 text-[11px] font-semibold flex items-center justify-end">
-                          Detail <ChevronRight className="w-3 h-3 ml-0.5" />
-                        </span>
-                      </td>
+            {/* TAB 1: Top Stores Leaderboard Table */}
+            {activeSideTab === 'stores' && (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-slate-200 dark:border-slate-800 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                      <th className="pb-2.5">Store Location</th>
+                      <th className="pb-2.5">Region</th>
+                      <th className="pb-2.5 text-right">Sales</th>
+                      <th className="pb-2.5 text-right">Margin %</th>
+                      <th className="pb-2.5 text-right">Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {top_stores.map((s) => (
+                      <tr
+                        key={s.store_id}
+                        className="hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer group"
+                        onClick={() => onNavigate('stores', s.store_id)}
+                      >
+                        <td className="py-2.5 font-medium text-slate-800 dark:text-slate-200 flex items-center">
+                          <span className="w-1.5 h-1.5 rounded-full bg-brand-500 mr-2 group-hover:scale-125 transition-transform"></span>
+                          <span className="truncate max-w-[150px]">{s.store_name.replace('Vertex ', '')}</span>
+                        </td>
+                        <td className="py-2.5 text-slate-500 dark:text-slate-400">{s.region}</td>
+                        <td className="py-2.5 text-right font-mono font-medium text-slate-900 dark:text-white">
+                          {formatINR(s.revenue)}
+                        </td>
+                        <td className="py-2.5 text-right font-mono text-slate-700 dark:text-slate-300">
+                          {s.margin_percent}%
+                        </td>
+                        <td className="py-2.5 text-right">
+                          <span className="text-brand-600 dark:text-brand-400 group-hover:text-brand-800 text-[11px] font-semibold flex items-center justify-end">
+                            Detail <ChevronRight className="w-3 h-3 ml-0.5" />
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* TAB 2: Plain English Key Highlights */}
+            {activeSideTab === 'highlights' && (
+              <div className="space-y-2.5">
+                {highlights.map((h, i) => (
+                  <div
+                    key={i}
+                    className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700 flex items-start space-x-3"
+                  >
+                    <span
+                      className={`w-2 h-2 rounded-full shrink-0 mt-1.5 ${
+                        h.impact === 'positive'
+                          ? 'bg-emerald-500'
+                          : h.impact === 'negative'
+                          ? 'bg-rose-500'
+                          : 'bg-brand-500'
+                      }`}
+                    />
+                    <div>
+                      <div className="font-semibold text-slate-900 dark:text-white text-xs">{h.title}</div>
+                      <div className="text-slate-600 dark:text-slate-300 text-xs mt-0.5 leading-snug">{h.text}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* TAB 3: Goal Achievement Progress */}
+            {activeSideTab === 'targets' && (
+              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">Total Goal Achievement</span>
+                    <div className="text-2xl font-bold font-mono text-slate-900 dark:text-white mt-0.5">
+                      {targets.revenue_achievement}%
+                    </div>
+                  </div>
+                  <div className={`text-right text-xs font-semibold ${targets.variance >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                    {targets.variance >= 0 ? 'Surplus: +' : 'Deficit: '}{formatINR(targets.variance)}
+                  </div>
+                </div>
+
+                {/* Progress bar */}
+                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      targets.revenue_achievement >= 100 ? 'bg-emerald-500' : 'bg-brand-500'
+                    }`}
+                    style={{ width: `${Math.min(targets.revenue_achievement, 100)}%` }}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 pt-2 border-t border-slate-200 dark:border-slate-750 text-xs">
+                  <div>
+                    <span className="text-slate-500 dark:text-slate-400">Target Goal:</span>
+                    <div className="font-mono font-bold text-slate-900 dark:text-white mt-0.5">{formatINR(targets.target_revenue)}</div>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 dark:text-slate-400">Actual Realized:</span>
+                    <div className="font-mono font-bold text-slate-900 dark:text-white mt-0.5">{formatINR(kpis.revenue.current)}</div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
-          <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
             <span>20 total network stores monitored</span>
-            <button onClick={() => onNavigate('stores')} className="text-brand-600 font-medium">Compare stores</button>
+            <button onClick={() => onNavigate('stores')} className="text-brand-600 dark:text-brand-400 font-medium">Compare stores</button>
           </div>
         </div>
       </div>
 
-      {/* Attribution Drawer */}
+      {/* LEVEL 3: Attribution Drawer (On Demand) */}
       <AttributionDrawer
         isOpen={attributionMetric !== null}
         onClose={() => setAttributionMetric(null)}

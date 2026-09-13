@@ -148,61 +148,61 @@ export const ProductsView: React.FC<{ selectedProductId?: string }> = ({ selecte
     <div className="space-y-6">
       {/* 1. Product Summary KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-subtle">
-          <div className="text-[10px] font-semibold text-slate-500 uppercase">Tracked SKUs</div>
-          <div className="text-xl font-bold font-mono text-slate-900 mt-1">{kpis.total_skus} Products</div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle">
+          <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Total Products</div>
+          <div className="text-xl font-bold font-mono text-slate-900 dark:text-white mt-1">{kpis.total_skus} Items</div>
           <div className="text-[11px] text-slate-400 mt-1">11 Product Categories</div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-subtle">
-          <div className="text-[10px] font-semibold text-slate-500 uppercase">Top Revenue Driver</div>
-          <div className="text-xs font-bold text-slate-900 truncate mt-1" title={kpis.top_revenue_product}>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle">
+          <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Top Selling Product</div>
+          <div className="text-xs font-bold text-slate-900 dark:text-white truncate mt-1" title={kpis.top_revenue_product}>
             {kpis.top_revenue_product}
           </div>
-          <div className="text-[11px] text-emerald-600 mt-1">Highest gross volume</div>
+          <div className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1">Highest sales volume</div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-subtle">
-          <div className="text-[10px] font-semibold text-slate-500 uppercase">Highest Margin SKU</div>
-          <div className="text-xs font-bold text-slate-900 truncate mt-1" title={kpis.top_margin_product}>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle">
+          <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Highest Profit Margin</div>
+          <div className="text-xs font-bold text-slate-900 dark:text-white truncate mt-1" title={kpis.top_margin_product}>
             {kpis.top_margin_product}
           </div>
-          <div className="text-[11px] text-brand-600 mt-1">Peak profitability margin</div>
+          <div className="text-[11px] text-brand-600 dark:text-brand-400 mt-1">Peak profit margin</div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-subtle">
-          <div className="text-[10px] font-semibold text-slate-500 uppercase">Fastest Growing</div>
-          <div className="text-xs font-bold text-slate-900 truncate mt-1" title={kpis.fastest_growing_product}>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle">
+          <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Fastest Growing</div>
+          <div className="text-xs font-bold text-slate-900 dark:text-white truncate mt-1" title={kpis.fastest_growing_product}>
             {kpis.fastest_growing_product}
           </div>
-          <div className="text-[11px] text-emerald-600 mt-1">Highest period delta %</div>
+          <div className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1">Biggest sales increase</div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-subtle col-span-2 sm:col-span-1">
-          <div className="text-[10px] font-semibold text-slate-500 uppercase">Declining SKUs</div>
-          <div className="text-xl font-bold font-mono text-rose-600 mt-1">{kpis.declining_products_count} SKUs</div>
-          <div className="text-[11px] text-rose-600 mt-1">Negative YoY volume</div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle col-span-2 sm:col-span-1">
+          <div className="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase">Slowing Sales</div>
+          <div className="text-xl font-bold font-mono text-rose-600 dark:text-rose-400 mt-1">{kpis.declining_products_count} Items</div>
+          <div className="text-[11px] text-rose-600/80 mt-1">Drop vs last year</div>
         </div>
       </div>
 
       {/* 2. Scatter / Bubble Product Matrix */}
-      <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-subtle">
-        <div className="flex items-center justify-between mb-2">
+      <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
           <div>
-            <h3 className="text-sm font-bold text-slate-900">Product Portfolio Matrix</h3>
-            <p className="text-xs text-slate-500">
-              X-axis: Gross Margin % • Y-axis: Net Sales Revenue • Bubble Size: Units Sold
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Product Profit vs Sales Map</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Profit Margin % (X-axis) vs Total Sales (Y-axis). Top-right items make the most profit and sales.
             </p>
           </div>
-          <div className="flex items-center space-x-3 text-[11px]">
+          <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-600 dark:text-slate-300">
             <span className="flex items-center"><span className="w-2 h-2 rounded-full bg-emerald-500 mr-1.5" /> High Margin (≥30%)</span>
             <span className="flex items-center"><span className="w-2 h-2 rounded-full bg-blue-500 mr-1.5" /> Moderate (20-30%)</span>
-            <span className="flex items-center"><span className="w-2 h-2 rounded-full bg-amber-500 mr-1.5" /> Volume Low Margin (&lt;20%)</span>
+            <span className="flex items-center"><span className="w-2 h-2 rounded-full bg-amber-500 mr-1.5" /> Low Margin (&lt;20%)</span>
           </div>
         </div>
         <EChart
           option={scatterOption}
-          height="340px"
+          height="320px"
           onEvents={{
             click: (params: any) => {
               if (params.data?.product_id) {
@@ -211,39 +211,39 @@ export const ProductsView: React.FC<{ selectedProductId?: string }> = ({ selecte
             }
           }}
         />
-        <div className="text-[11px] text-slate-400 italic text-center pt-2">
-          Click any product bubble to view SKU sales trends and stock levels.
+        <div className="text-[11px] text-slate-400 dark:text-slate-500 italic text-center pt-2">
+          Click any product bubble to see individual sales trends and inventory.
         </div>
       </div>
 
       {/* 3. Product Catalog Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-subtle overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle overflow-hidden">
         {/* Table Search & Filter Bar */}
-        <div className="p-4 border-b border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="relative w-full sm:w-80">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
             <input
               type="text"
-              placeholder="Search product or SKU..."
+              placeholder="Search product name or SKU..."
               value={search}
               onChange={e => {
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              className="w-full pl-9 pr-4 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="w-full pl-9 pr-4 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </div>
 
-          <div className="flex items-center space-x-2 text-xs text-slate-500">
+          <div className="flex items-center space-x-2 text-xs text-slate-500 dark:text-slate-400">
             <span>Sort by:</span>
             <select
               value={sortBy}
               onChange={e => setSortBy(e.target.value)}
-              className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-800 font-medium"
+              className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-800 dark:text-slate-200 font-medium cursor-pointer"
             >
-              <option value="revenue">Revenue</option>
-              <option value="units">Units Sold</option>
-              <option value="gross_profit">Gross Profit</option>
+              <option value="revenue">Total Sales</option>
+              <option value="units">Items Sold</option>
+              <option value="gross_profit">Net Profit</option>
               <option value="margin">Margin %</option>
               <option value="growth">Growth</option>
             </select>

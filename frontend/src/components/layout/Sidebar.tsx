@@ -32,19 +32,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenArchitecture,
   alertCount = 12
 }) => {
-  const navItems = [
-    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { id: 'sales', label: 'Sales', icon: TrendingUp },
-    { id: 'stores', label: 'Stores', icon: Store },
-    { id: 'products', label: 'Products', icon: Package },
-    { id: 'customers', label: 'Customers', icon: Users },
-    { id: 'inventory', label: 'Inventory', icon: Boxes },
-    { id: 'profitability', label: 'Profitability', icon: PieChart },
-    { id: 'geography', label: 'Geography', icon: MapPin },
-    { id: 'targets', label: 'Targets', icon: Target },
-    { id: 'alerts', label: 'Alerts', icon: AlertTriangle, badge: alertCount },
-    { id: 'reports', label: 'Reports', icon: FileText },
-    { id: 'explorer', label: 'Data Explorer', icon: Database },
+  const navGroups = [
+    {
+      category: 'Analytics',
+      items: [
+        { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+        { id: 'sales', label: 'Sales Trends', icon: TrendingUp },
+        { id: 'stores', label: 'Stores', icon: Store },
+        { id: 'products', label: 'Products', icon: Package },
+        { id: 'profitability', label: 'Profit & Margins', icon: PieChart },
+      ]
+    },
+    {
+      category: 'Operations',
+      items: [
+        { id: 'inventory', label: 'Stock & Inventory', icon: Boxes },
+        { id: 'customers', label: 'Customers', icon: Users },
+        { id: 'geography', label: 'Locations & Regions', icon: MapPin },
+      ]
+    },
+    {
+      category: 'Tools & Downloads',
+      items: [
+        { id: 'targets', label: 'Goals & Targets', icon: Target },
+        { id: 'alerts', label: 'Alerts & Warnings', icon: AlertTriangle, badge: alertCount },
+        { id: 'reports', label: 'Reports & Downloads', icon: FileText },
+        { id: 'explorer', label: 'Explore Data', icon: Database },
+      ]
+    }
   ];
 
   return (
@@ -68,35 +83,39 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Navigation Modules */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-        <div className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
-          Analytics Command Center
-        </div>
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => onTabChange(item.id)}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
-                isActive
-                  ? 'bg-brand-600 text-white shadow-sm'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
-              }`}
-            >
-              <div className="flex items-center space-x-2.5">
-                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-                <span>{item.label}</span>
-              </div>
-              {item.badge !== undefined && item.badge > 0 && (
-                <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${isActive ? 'bg-white text-brand-700' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'}`}>
-                  {item.badge}
-                </span>
-              )}
-            </button>
-          );
-        })}
+      <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
+        {navGroups.map((group) => (
+          <div key={group.category} className="space-y-1">
+            <div className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              {group.category}
+            </div>
+            {group.items.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => onTabChange(item.id)}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                    isActive
+                      ? 'bg-brand-600 text-white shadow-sm font-semibold'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
+                  }`}
+                >
+                  <div className="flex items-center space-x-2.5">
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                    <span>{item.label}</span>
+                  </div>
+                  {item.badge !== undefined && item.badge > 0 && (
+                    <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${isActive ? 'bg-white text-brand-700' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'}`}>
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        ))}
       </nav>
 
       {/* Bottom Metadata & Portfolio Links */}

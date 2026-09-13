@@ -33,20 +33,30 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
-# Process timing middleware
+# Process timing and enterprise security headers middleware
 @app.middleware("http")
-async def add_process_time_header(request: Request, call_next):
+async def security_and_timing_middleware(request: Request, call_next):
     start_time = time.time()
     response = await call_next(request)
     process_time = time.time() - start_time
+    
+    # Process timing header
     response.headers["X-Process-Time-Sec"] = f"{process_time:.4f}"
+    
+    # Enterprise Security Headers
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "geolocation=(), camera=(), microphone=()"
+    
     return response
 
-# Global Exception Handler (PART 45: Never expose raw stack traces)
+# Global Exception Handler (Safe: Never expose raw stack traces)
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     return JSONResponse(
@@ -54,7 +64,7 @@ async def global_exception_handler(request: Request, exc: Exception):
         content={
             "error": "Internal Processing Error",
             "message": "An error occurred while processing analytics query. Please verify filter parameters.",
-            "detail": str(exc) if "DEBUG" in settings.__dict__ else "Internal error"
+            "detail": "Internal processing exception occurred. Contact system administrator."
         }
     )
 

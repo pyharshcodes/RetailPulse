@@ -47,51 +47,56 @@ export const AlertsView: React.FC = () => {
     <div className="space-y-6">
       {/* 1. Alerts Severity Overview Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-subtle">
-          <div className="text-[10px] font-semibold text-slate-500 uppercase">Total Active Alerts</div>
-          <div className="text-xl font-bold font-mono text-slate-900 mt-1">{total_alerts} Signals</div>
-          <div className="text-[11px] text-slate-400 mt-1">Rule-based & statistical</div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle">
+          <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">All Active Notices</div>
+          <div className="text-xl font-bold font-mono text-slate-900 dark:text-white mt-1">{total_alerts} Signals</div>
+          <div className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">Issues requiring review</div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-rose-200 shadow-subtle bg-rose-50/20">
-          <div className="text-[10px] font-semibold text-rose-700 uppercase">Critical Severity</div>
-          <div className="text-xl font-bold font-mono text-rose-600 mt-1">{severity_counts.Critical} Critical</div>
-          <div className="text-[11px] text-rose-600 mt-1">Immediate action required</div>
+        <div className="bg-rose-50/40 dark:bg-rose-950/20 p-4 rounded-xl border border-rose-200 dark:border-rose-900/40 shadow-subtle">
+          <div className="text-[10px] font-semibold text-rose-700 dark:text-rose-400 uppercase tracking-wider">Needs Attention Now</div>
+          <div className="text-xl font-bold font-mono text-rose-600 dark:text-rose-400 mt-1">{severity_counts.Critical} Critical</div>
+          <div className="text-[11px] text-rose-600 dark:text-rose-400/80 mt-1">Urgent action recommended</div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-amber-200 shadow-subtle bg-amber-50/20">
-          <div className="text-[10px] font-semibold text-amber-700 uppercase">Warning Severity</div>
-          <div className="text-xl font-bold font-mono text-amber-600 mt-1">{severity_counts.Warning} Warnings</div>
-          <div className="text-[11px] text-amber-600 mt-1">Approaching thresholds</div>
+        <div className="bg-amber-50/40 dark:bg-amber-950/20 p-4 rounded-xl border border-amber-200 dark:border-amber-900/40 shadow-subtle">
+          <div className="text-[10px] font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Watch Closely</div>
+          <div className="text-xl font-bold font-mono text-amber-600 dark:text-amber-400 mt-1">{severity_counts.Warning} Warnings</div>
+          <div className="text-[11px] text-amber-600 dark:text-amber-400/80 mt-1">Approaching risk limits</div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-blue-200 shadow-subtle bg-blue-50/20">
-          <div className="text-[10px] font-semibold text-blue-700 uppercase">Informational</div>
-          <div className="text-xl font-bold font-mono text-blue-600 mt-1">{severity_counts.Info} Signals</div>
-          <div className="text-[11px] text-blue-600 mt-1">Trend notices</div>
+        <div className="bg-blue-50/40 dark:bg-blue-950/20 p-4 rounded-xl border border-blue-200 dark:border-blue-900/40 shadow-subtle">
+          <div className="text-[10px] font-semibold text-blue-700 dark:text-blue-400 uppercase tracking-wider">Good to Know</div>
+          <div className="text-xl font-bold font-mono text-blue-600 dark:text-blue-400 mt-1">{severity_counts.Info} Signals</div>
+          <div className="text-[11px] text-blue-600 dark:text-blue-400/80 mt-1">General business updates</div>
         </div>
       </div>
 
       {/* 2. Filter Tabs */}
-      <div className="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-200 shadow-subtle">
-        <div className="flex items-center space-x-2 text-xs">
-          <span className="font-semibold text-slate-600 mr-2">Filter by Severity:</span>
-          {['All', 'Critical', 'Warning', 'Info'].map((sev) => (
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle">
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          <span className="font-semibold text-slate-600 dark:text-slate-300 mr-1">Show:</span>
+          {[
+            { key: 'All', label: 'All Notices' },
+            { key: 'Critical', label: 'Needs Attention Now' },
+            { key: 'Warning', label: 'Watch Closely' },
+            { key: 'Info', label: 'Good to Know' },
+          ].map((item) => (
             <button
-              key={sev}
-              onClick={() => setSeverityFilter(sev)}
-              className={`px-3 py-1 rounded-lg font-medium transition-all ${
-                severityFilter === sev
-                  ? 'bg-slate-900 text-white shadow-sm'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              key={item.key}
+              onClick={() => setSeverityFilter(item.key)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                severityFilter === item.key
+                  ? 'bg-slate-900 dark:bg-brand-600 text-white shadow-sm'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
-              {sev}
+              {item.label}
             </button>
           ))}
         </div>
-        <span className="text-xs text-slate-400">
-          Showing {filteredAlerts.length} of {total_alerts} alerts
+        <span className="text-xs text-slate-400 dark:text-slate-500">
+          Showing {filteredAlerts.length} of {total_alerts} notices
         </span>
       </div>
 
@@ -106,10 +111,10 @@ export const AlertsView: React.FC = () => {
               key={alert.id}
               className={`p-4 rounded-xl border transition-all shadow-subtle ${
                 isCritical
-                  ? 'bg-white border-rose-200 hover:border-rose-300'
+                  ? 'bg-white dark:bg-slate-900 border-rose-200 dark:border-rose-900/40 hover:border-rose-300'
                   : isWarning
-                  ? 'bg-white border-amber-200 hover:border-amber-300'
-                  : 'bg-white border-slate-200 hover:border-slate-300'
+                  ? 'bg-white dark:bg-slate-900 border-amber-200 dark:border-amber-900/40 hover:border-amber-300'
+                  : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
               }`}
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -117,29 +122,29 @@ export const AlertsView: React.FC = () => {
                   <span
                     className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                       isCritical
-                        ? 'bg-rose-100 text-rose-800'
+                        ? 'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300'
                         : isWarning
-                        ? 'bg-amber-100 text-amber-800'
-                        : 'bg-blue-100 text-blue-800'
+                        ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300'
+                        : 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300'
                     }`}
                   >
-                    {alert.severity}
+                    {isCritical ? 'Attention' : isWarning ? 'Warning' : 'Info'}
                   </span>
-                  <span className="text-xs font-bold text-slate-900">{alert.category}</span>
-                  <span className="text-slate-300">•</span>
-                  <span className="text-xs font-medium text-slate-600">{alert.entity_name}</span>
+                  <span className="text-xs font-bold text-slate-900 dark:text-white">{alert.category}</span>
+                  <span className="text-slate-300 dark:text-slate-700">•</span>
+                  <span className="text-xs font-medium text-slate-600 dark:text-slate-400">{alert.entity_name}</span>
                 </div>
 
                 <div className="flex items-center space-x-4 text-xs font-mono">
-                  <span>Actual: <b>{alert.actual}</b></span>
-                  <span className="text-slate-400">Expected: {alert.expected}</span>
-                  <span className={`font-bold ${isCritical ? 'text-rose-600' : 'text-amber-600'}`}>
-                    Variance: {alert.variance}
+                  <span className="text-slate-700 dark:text-slate-300">Actual: <b className="text-slate-900 dark:text-white">{alert.actual}</b></span>
+                  <span className="text-slate-400 dark:text-slate-500">Expected: {alert.expected}</span>
+                  <span className={`font-bold ${isCritical ? 'text-rose-600 dark:text-rose-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                    Difference: {alert.variance}
                   </span>
                 </div>
               </div>
 
-              <p className="text-xs text-slate-600 mt-2.5 leading-relaxed bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+              <p className="text-xs text-slate-600 dark:text-slate-300 mt-2.5 leading-relaxed bg-slate-50 dark:bg-slate-800/60 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
                 {alert.explanation}
               </p>
             </div>

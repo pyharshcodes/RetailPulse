@@ -54,9 +54,9 @@ export const ProfitabilityView: React.FC = () => {
     grid: { top: 25, right: 30, bottom: 30, left: 75 },
     xAxis: {
       type: 'category',
-      data: ['Gross Sales', 'Discount Concessions', 'Cost of Goods (COGS)', 'Net Gross Profit'],
+      data: ['Total Sales (MRP)', 'Discounts Given', 'Product Costs', 'Net Profit'],
       axisLine: { lineStyle: { color: '#CBD5E1' } },
-      axisLabel: { color: '#334155', fontSize: 11, fontWeight: 'bold' }
+      axisLabel: { color: '#64748B', fontSize: 11, fontWeight: 'bold' }
     },
     yAxis: {
       type: 'value',
@@ -84,7 +84,7 @@ export const ProfitabilityView: React.FC = () => {
         label: {
           show: true,
           position: 'top',
-          color: '#334155',
+          color: '#64748B',
           fontSize: 10,
           formatter: (params: any) => formatINR(Math.abs(params.value), true)
         },
@@ -103,37 +103,37 @@ export const ProfitabilityView: React.FC = () => {
     <div className="space-y-6">
       {/* 1. Profitability Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-subtle">
-          <div className="text-[10px] font-semibold text-slate-500 uppercase">Net Sales Revenue</div>
-          <div className="text-xl font-bold font-mono text-slate-900 mt-1">{formatINR(kpis.net_revenue)}</div>
-          <div className="text-[11px] text-slate-400 mt-1">Top-line realized</div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle">
+          <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Total Sales</div>
+          <div className="text-xl font-bold font-mono text-slate-900 dark:text-white mt-1">{formatINR(kpis.net_revenue)}</div>
+          <div className="text-[11px] text-slate-400 mt-1">Realized top-line</div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-subtle">
-          <div className="text-[10px] font-semibold text-slate-500 uppercase">Cost of Goods (COGS)</div>
-          <div className="text-xl font-bold font-mono text-rose-600 mt-1">{formatINR(kpis.cogs)}</div>
-          <div className="text-[11px] text-slate-400 mt-1">Direct product costs</div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle">
+          <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Product Costs</div>
+          <div className="text-xl font-bold font-mono text-rose-600 dark:text-rose-400 mt-1">{formatINR(kpis.cogs)}</div>
+          <div className="text-[11px] text-slate-400 mt-1">Direct goods cost</div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-subtle">
-          <div className="text-[10px] font-semibold text-slate-500 uppercase">Net Gross Profit</div>
-          <div className="text-xl font-bold font-mono text-emerald-600 mt-1">{formatINR(kpis.gross_profit)}</div>
-          <div className="text-[11px] text-slate-400 mt-1">Revenue minus COGS</div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle">
+          <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Net Profit</div>
+          <div className="text-xl font-bold font-mono text-emerald-600 dark:text-emerald-400 mt-1">{formatINR(kpis.gross_profit)}</div>
+          <div className="text-[11px] text-slate-400 mt-1">Sales minus Costs</div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-subtle">
-          <div className="text-[10px] font-semibold text-slate-500 uppercase">Weighted Gross Margin</div>
-          <div className="text-xl font-bold font-mono text-brand-600 mt-1">{kpis.gross_margin_percent}%</div>
-          <div className="text-[11px] text-brand-600 mt-1">Weighted profitability</div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle">
+          <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Profit Margin</div>
+          <div className="text-xl font-bold font-mono text-brand-600 dark:text-brand-400 mt-1">{kpis.gross_margin_percent}%</div>
+          <div className="text-[11px] text-brand-600 dark:text-brand-400 mt-1">₹19 profit per ₹100</div>
         </div>
       </div>
 
       {/* 2. Waterfall Visualization */}
-      <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-subtle">
+      <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle">
         <div className="flex items-center justify-between mb-2">
           <div>
-            <h3 className="text-sm font-bold text-slate-900">Profitability Waterfall: Top-Line to Gross Margin</h3>
-            <p className="text-xs text-slate-500">Deconstructing gross revenue through discounts and COGS deductions.</p>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">How Sales Turn Into Profit</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Step-by-step breakdown: gross sales, discounts given, product purchase cost, and net profit.</p>
           </div>
         </div>
         <EChart option={waterfallOption} height="280px" />

@@ -95,45 +95,45 @@ export const InventoryView: React.FC = () => {
     <div className="space-y-6">
       {/* 1. Inventory Summary KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-subtle">
-          <div className="text-[10px] font-semibold text-slate-500 uppercase">Inventory Valuation</div>
-          <div className="text-xl font-bold font-mono text-slate-900 mt-1">{formatINR(summary.inventory_value)}</div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle">
+          <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Total Stock Value</div>
+          <div className="text-xl font-bold font-mono text-slate-900 dark:text-white mt-1">{formatINR(summary.inventory_value)}</div>
           <div className="text-[11px] text-slate-400 mt-1">{formatNumber(summary.total_units)} Total Units</div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-subtle">
-          <div className="text-[10px] font-semibold text-slate-500 uppercase">Inventory Turnover</div>
-          <div className="text-xl font-bold font-mono text-brand-600 mt-1">{summary.inventory_turnover}x / yr</div>
-          <div className="text-[11px] text-slate-400 mt-1">Annualized COGS / Stock</div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle">
+          <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Turnover Speed</div>
+          <div className="text-xl font-bold font-mono text-brand-600 dark:text-brand-400 mt-1">{summary.inventory_turnover}x / yr</div>
+          <div className="text-[11px] text-slate-400 mt-1">Annual stock cycles</div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-subtle">
-          <div className="text-[10px] font-semibold text-slate-500 uppercase">Low Stock SKUs</div>
-          <div className="text-xl font-bold font-mono text-rose-600 mt-1">{summary.low_stock_skus} SKUs</div>
-          <div className="text-[11px] text-rose-600 mt-1">Below reorder threshold</div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle">
+          <div className="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase">Low Stock Warning</div>
+          <div className="text-xl font-bold font-mono text-rose-600 dark:text-rose-400 mt-1">{summary.low_stock_skus} Items</div>
+          <div className="text-[11px] text-rose-600/80 mt-1">Needs reordering soon</div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-subtle">
-          <div className="text-[10px] font-semibold text-slate-500 uppercase">Overstocked SKUs</div>
-          <div className="text-xl font-bold font-mono text-amber-600 mt-1">{summary.overstocked_skus} SKUs</div>
-          <div className="text-[11px] text-amber-600 mt-1">&gt;4x reorder point</div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle">
+          <div className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase">Excess Stock</div>
+          <div className="text-xl font-bold font-mono text-amber-600 dark:text-amber-400 mt-1">{summary.overstocked_skus} Items</div>
+          <div className="text-[11px] text-amber-600/80 mt-1">&gt;4x reorder point</div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-subtle col-span-2 sm:col-span-1">
-          <div className="text-[10px] font-semibold text-slate-500 uppercase">90+ Day Aging Capital</div>
-          <div className="text-xl font-bold font-mono text-rose-600 mt-1">{formatINR(summary.aging_value_90_plus)}</div>
-          <div className="text-[11px] text-rose-600 mt-1">Capital trapped &gt;90 days</div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle col-span-2 sm:col-span-1">
+          <div className="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase">Old Stock (90+ Days)</div>
+          <div className="text-xl font-bold font-mono text-rose-600 dark:text-rose-400 mt-1">{formatINR(summary.aging_value_90_plus)}</div>
+          <div className="text-[11px] text-rose-600/80 mt-1">Capital tied up &gt;90 days</div>
         </div>
       </div>
 
       {/* 2. Inventory Aging Breakdown & Movement Equation Banner */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Aging Distribution Chart (2 cols) */}
-        <div className="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-subtle">
+        <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle">
           <div className="flex items-center justify-between mb-2">
             <div>
-              <h3 className="text-sm font-bold text-slate-900">Capital Value by Aging Bucket</h3>
-              <p className="text-xs text-slate-500">Working capital distribution based on days elapsed since last sale transaction.</p>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">How Long Stock Has Been Sitting</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Value of unsold stock grouped by days since the last sale.</p>
             </div>
           </div>
           <EChart option={agingChartOption} height="240px" />
@@ -144,56 +144,61 @@ export const InventoryView: React.FC = () => {
           <div>
             <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-brand-400 mb-2">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>Conservation Equation</span>
+              <span>Stock Balance Guarantee</span>
             </div>
-            <div className="font-mono text-sm font-bold text-slate-100 bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+            <div className="font-mono text-xs font-bold text-slate-100 bg-slate-950 p-2.5 rounded-lg border border-slate-800">
               Closing = Opening + Purchases + Returns - Sold
             </div>
-            <p className="text-xs text-slate-400 mt-3 leading-relaxed">
-              Every SKU ledger strictly enforces mathematical conservation. Zero negative stocks or synthetic anomalies.
-            </p>
+            <div className="text-xs text-slate-300 mt-3 space-y-1.5">
+              <div className="flex items-center text-emerald-400 text-[11px]">
+                <CheckCircle2 className="w-3.5 h-3.5 mr-1.5 shrink-0" />
+                <span>Zero discrepancies across all 9,160 stock records.</span>
+              </div>
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                Stock counts are reconciled automatically every night against POS sales receipts.
+              </p>
+            </div>
           </div>
 
-          <div className="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
-            <span>Verified 9,160 Store-SKUs</span>
-            <span className="text-emerald-400 font-mono">100% Passed</span>
+          <div className="pt-3 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
+            <span>Verified 100% Balanced</span>
+            <span className="font-mono text-emerald-400">Error: 0.00</span>
           </div>
         </div>
       </div>
 
-      {/* 3. SKU Stock Health Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-subtle overflow-hidden">
-        <div className="p-4 border-b border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div>
-            <h3 className="text-sm font-bold text-slate-900">Store SKU Stock Ledger</h3>
-            <p className="text-xs text-slate-500">Filter by stock health state to identify replenishment needs or clearance candidates.</p>
-          </div>
-
-          {/* Status Filter Tabs */}
-          <div className="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs">
-            {['All', 'Healthy', 'Low Stock', 'Overstocked', 'Aging'].map((st) => (
-              <button
-                key={st}
-                onClick={() => {
-                  setStatusFilter(st);
-                  setPage(1);
-                }}
-                className={`px-2.5 py-1 rounded-md font-medium transition-all ${
-                  statusFilter === st
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                {st}
-              </button>
-            ))}
-          </div>
+      {/* 3. Stock Status Filter Bar */}
+      <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle flex items-center justify-between">
+        <div className="flex items-center space-x-2 text-xs">
+          <span className="font-semibold text-slate-600 dark:text-slate-300 mr-2">Filter by Status:</span>
+          {['All', 'Optimal', 'Low Stock', 'Overstocked'].map((status) => (
+            <button
+              key={status}
+              onClick={() => {
+                setStatusFilter(status);
+                setPage(1);
+              }}
+              className={`px-3 py-1 rounded-lg font-medium transition-all ${
+                statusFilter === status
+                  ? 'bg-slate-900 dark:bg-brand-600 text-white shadow-sm'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+              }`}
+            >
+              {status}
+            </button>
+          ))}
         </div>
+        <span className="text-xs text-slate-400">
+          Showing {items.length} of {pagination.total} items
+        </span>
+      </div>
 
+      {/* 3. SKU Stock Health Table */}
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-semibold text-slate-600">
+              <tr className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
                 <th className="py-3 px-4">Product Name</th>
                 <th className="py-3 px-4">Store Location</th>
                 <th className="py-3 px-4 text-right">Closing Stock</th>
@@ -204,10 +209,10 @@ export const InventoryView: React.FC = () => {
                 <th className="py-3 px-4 text-center">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {items.map(it => (
-                <tr key={it.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="py-3 px-4 font-semibold text-slate-900">
+                <tr key={it.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors">
+                  <td className="py-3 px-4 font-semibold text-slate-900 dark:text-white">
                     <div className="truncate max-w-[200px]">{it.product_name}</div>
                     <span className="text-[10px] text-slate-400 font-normal">{it.category}</span>
                   </td>

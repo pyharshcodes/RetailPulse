@@ -49,11 +49,11 @@ export const KPICard: React.FC<KPICardProps> = ({
       className={`relative p-5 rounded-xl border transition-all duration-200 ${
         highlight
           ? 'bg-gradient-to-br from-brand-900 to-slate-900 border-brand-700 text-white shadow-md'
-          : 'bg-white border-slate-200 text-slate-900 shadow-subtle hover:border-slate-300'
+          : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white shadow-subtle hover:border-slate-300 dark:hover:border-slate-700'
       }`}
     >
       <div className="flex items-center justify-between">
-        <span className={`text-xs font-semibold uppercase tracking-wider ${highlight ? 'text-brand-200' : 'text-slate-500'}`}>
+        <span className={`text-xs font-semibold uppercase tracking-wider ${highlight ? 'text-brand-200' : 'text-slate-500 dark:text-slate-400'}`}>
           {title}
         </span>
         <div className="flex items-center space-x-1.5">
@@ -61,13 +61,13 @@ export const KPICard: React.FC<KPICardProps> = ({
             <button
               onClick={onInspect}
               title="Explain what changed"
-              className={`p-1 rounded hover:bg-slate-100 transition-colors ${highlight ? 'hover:bg-white/10 text-brand-200' : 'text-slate-400 hover:text-slate-600'}`}
+              className={`p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${highlight ? 'hover:bg-white/10 text-brand-200' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'}`}
             >
               <Info className="w-3.5 h-3.5" />
             </button>
           )}
           {icon && (
-            <div className={`p-1.5 rounded-lg ${highlight ? 'bg-white/10 text-brand-300' : 'bg-slate-100 text-slate-600'}`}>
+            <div className={`p-1.5 rounded-lg ${highlight ? 'bg-white/10 text-brand-300' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}>
               {icon}
             </div>
           )}
@@ -80,10 +80,10 @@ export const KPICard: React.FC<KPICardProps> = ({
         </div>
       </div>
 
-      <div className="mt-3 flex items-center justify-between text-xs pt-2.5 border-t border-dashed border-slate-200/60">
+      <div className="mt-3 flex items-center justify-between text-xs pt-2.5 border-t border-dashed border-slate-200/60 dark:border-slate-800">
         <div className="flex items-center space-x-1">
           {pctChange === null ? (
-            <span className={`flex items-center px-1.5 py-0.5 rounded font-medium ${highlight ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-600'}`}>
+            <span className={`flex items-center px-1.5 py-0.5 rounded font-medium ${highlight ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
               <Minus className="w-3 h-3 mr-0.5" /> N/A
             </span>
           ) : isPositive ? (
@@ -97,16 +97,16 @@ export const KPICard: React.FC<KPICardProps> = ({
               {formatPercent(pctChange)}
             </span>
           ) : (
-            <span className={`flex items-center px-1.5 py-0.5 rounded font-medium ${highlight ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-600'}`}>
+            <span className={`flex items-center px-1.5 py-0.5 rounded font-medium ${highlight ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
               <Minus className="w-3 h-3 mr-0.5" /> 0.0%
             </span>
           )}
-          <span className={`ml-1 text-[11px] ${highlight ? 'text-slate-300' : 'text-slate-500'}`}>
-            vs prev ({formattedPrevious})
+          <span className={`ml-1 text-[11px] ${highlight ? 'text-slate-300' : 'text-slate-500 dark:text-slate-400'}`}>
+            vs last period ({formattedPrevious})
           </span>
         </div>
         {subtitle && (
-          <span className={`text-[11px] ${highlight ? 'text-slate-400' : 'text-slate-400'}`}>
+          <span className={`text-[11px] ${highlight ? 'text-slate-400' : 'text-slate-400 dark:text-slate-500'}`}>
             {subtitle}
           </span>
         )}

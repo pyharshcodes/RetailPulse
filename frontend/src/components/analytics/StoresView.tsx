@@ -111,34 +111,34 @@ export const StoresView: React.FC<{ selectedStoreId?: string; onClearStoreId?: (
     <div className="space-y-6">
       {/* 1. Store Summary KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-subtle">
-          <div className="text-[10px] font-semibold text-slate-500 uppercase">Total Stores</div>
-          <div className="text-xl font-bold font-mono text-slate-900 mt-1">{kpis.total_stores} Locations</div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle">
+          <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Total Stores</div>
+          <div className="text-xl font-bold font-mono text-slate-900 dark:text-white mt-1">{kpis.total_stores} Stores</div>
           <div className="text-[11px] text-slate-400 mt-1">Across 5 Regions</div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-subtle">
-          <div className="text-[10px] font-semibold text-slate-500 uppercase">Above Target</div>
-          <div className="text-xl font-bold font-mono text-emerald-600 mt-1">{kpis.stores_above_target} Stores</div>
-          <div className="text-[11px] text-emerald-600 mt-1">≥100% Target Met</div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle">
+          <div className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase">Met Their Goal</div>
+          <div className="text-xl font-bold font-mono text-emerald-600 dark:text-emerald-400 mt-1">{kpis.stores_above_target} Stores</div>
+          <div className="text-[11px] text-emerald-600/80 mt-1">≥100% Target Met</div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-subtle">
-          <div className="text-[10px] font-semibold text-slate-500 uppercase">Needs Attention</div>
-          <div className="text-xl font-bold font-mono text-rose-600 mt-1">{kpis.stores_below_target} Stores</div>
-          <div className="text-[11px] text-rose-600 mt-1">&lt;90% Achievement</div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle">
+          <div className="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase">Needs Attention</div>
+          <div className="text-xl font-bold font-mono text-rose-600 dark:text-rose-400 mt-1">{kpis.stores_below_target} Stores</div>
+          <div className="text-[11px] text-rose-600/80 mt-1">&lt;90% of Goal</div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-subtle">
-          <div className="text-[10px] font-semibold text-slate-500 uppercase">Highest Overachiever</div>
-          <div className="text-xs font-bold text-slate-900 truncate mt-1">{kpis.best_store.replace('Vertex ', '')}</div>
-          <div className="text-[11px] text-emerald-600 mt-1">Leading target realization</div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle">
+          <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Best Store</div>
+          <div className="text-xs font-bold text-slate-900 dark:text-white truncate mt-1">{kpis.best_store.replace('Vertex ', '')}</div>
+          <div className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1">Top target achievement</div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-subtle col-span-2 sm:col-span-1">
-          <div className="text-[10px] font-semibold text-slate-500 uppercase">Lowest Realization</div>
-          <div className="text-xs font-bold text-slate-900 truncate mt-1">{kpis.lowest_performing_store.replace('Vertex ', '')}</div>
-          <div className="text-[11px] text-rose-600 mt-1">Target turnaround needed</div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle col-span-2 sm:col-span-1">
+          <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Slowest Store</div>
+          <div className="text-xs font-bold text-slate-900 dark:text-white truncate mt-1">{kpis.lowest_performing_store.replace('Vertex ', '')}</div>
+          <div className="text-[11px] text-rose-600 dark:text-rose-400 mt-1">Target turnaround needed</div>
         </div>
       </div>
 
@@ -168,26 +168,26 @@ export const StoresView: React.FC<{ selectedStoreId?: string; onClearStoreId?: (
       )}
 
       {/* 3. Stores Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-subtle overflow-hidden">
-        <div className="p-4 border-b border-slate-200 flex items-center justify-between">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle overflow-hidden">
+        <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-bold text-slate-900">Network Store Performance</h3>
-            <p className="text-xs text-slate-500">Select checkboxes to compare 2–4 stores, or click any row to inspect deep-dive metrics.</p>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Store Performance List</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Click any store to see detailed metrics, or check boxes to compare 2–4 stores.</p>
           </div>
-          <div className="text-xs text-slate-500">
-            Showing <span className="font-bold text-slate-800">{stores.length}</span> stores
+          <div className="text-xs text-slate-500 dark:text-slate-400">
+            Showing <span className="font-bold text-slate-800 dark:text-white">{stores.length}</span> stores
           </div>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-semibold text-slate-600">
+              <tr className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
                 <th className="py-3 px-3 w-10 text-center">Select</th>
                 <th className="py-3 px-3">Store</th>
                 <th className="py-3 px-3">City / Region</th>
-                <th className="py-3 px-3 text-right">Revenue</th>
-                <th className="py-3 px-3 text-right">YoY Growth</th>
+                <th className="py-3 px-3 text-right">Total Sales</th>
+                <th className="py-3 px-3 text-right">Growth vs Last Year</th>
                 <th className="py-3 px-3 text-right">Gross Profit</th>
                 <th className="py-3 px-3 text-right">Margin %</th>
                 <th className="py-3 px-3 text-right">Target</th>
