@@ -36,30 +36,32 @@ Unlike generic administrative templates or fragmented dashboard collections, Ret
 
 ## 🏗️ System Architecture
 
-RetailPulse utilizes an ultra-low latency, decoupled client-server architecture designed for sub-50ms analytics rendering:
+RetailPulse utilizes an ultra-low latency, decoupled client-server architecture designed for sub-50ms analytics rendering.
+
+### 1. Full-Stack System Architecture & Runtime Topology
 
 ```mermaid
 flowchart TD
-    subgraph Frontend["Frontend Client (React 19 + TypeScript + Tailwind)"]
-        Landing["SaaS Executive Showcase\n(Hero, Live Interactive Preview, Case Study)"]
-        CommandCenter["Live Command Center\n(Sidebar, Global Filter Bar, Omni-Search Ctrl+K)"]
-        AttributionDrawer["Deterministic Attribution Drawer\n('Why Did This Change?')"]
-        ECharts["Apache ECharts Engine\n(Dark Theme, Canvas Accelerated)"]
+    subgraph Client["Frontend Client Tier (React 19 + TypeScript + Tailwind)"]
+        Landing["SaaS Executive Showcase<br/>(Hero, Live Terminal, ROI Simulator)"]
+        CommandCenter["Live Command Center<br/>(Sidebar, Global Filter Bar, Omni-Search)"]
+        AttributionDrawer["Deterministic Attribution Drawer<br/>(Root-Cause Variance Breakdown)"]
+        ECharts["Apache ECharts Engine<br/>(Hardware-Accelerated Dark/Light Canvas)"]
     end
 
-    subgraph API["Backend Service (FastAPI + Python 3.14)"]
-        Router["FastAPI REST Routers\n(/api/overview, /api/sales, /api/stores, etc.)"]
-        AnalyticsEngine["Analytics Engine\n(Period Comparison, Weighted Margins, Highlights)"]
-        AttributionEngine["Root-Cause Attribution Engine\n(Additive Delta Decomposition)"]
-        RFMEngine["Customer RFM & 12-Mo Cohort Engine"]
-        InventoryPhysics["Inventory Conservation & Aging Engine"]
+    subgraph API["Backend API Gateway (FastAPI + Python 3.11/3.14)"]
+        Router["FastAPI REST Routers<br/>(/api/overview, /api/sales, /api/stores, etc.)"]
+        AnalyticsEngine["Analytics Engine<br/>(Period Comparison, Weighted Margins, Highlights)"]
+        AttributionEngine["Root-Cause Attribution Engine<br/>(Additive Delta Decomposition)"]
+        RFMEngine["Customer RFM and 12-Month Cohort Engine"]
+        InventoryPhysics["Inventory Conservation and Aging Engine"]
         AnomalyEngine["14-Day Rolling Z-Score Anomaly Engine"]
-        ReportEngine["ReportLab PDF & Streaming CSV Generator"]
+        ReportEngine["ReportLab PDF and Streaming CSV Generator"]
     end
 
-    subgraph Data["Persistence Layer"]
-        DB[(SQLite High-Speed WAL / PostgreSQL\n89,464 Transactions | 20 Stores | 458 SKUs)]
-        Validation["Continuous Mathematical Reconciliation Suite\n(0.0000 Variance Invariant)"]
+    subgraph Data["Persistence and Verification Layer"]
+        DB[("SQLite High-Speed WAL / PostgreSQL<br/>89,464 Transactions - 20 Stores - 458 SKUs")]
+        Validation["Continuous Mathematical Reconciliation Suite<br/>(0.0000 Variance Invariant)"]
     end
 
     Landing --> CommandCenter
@@ -77,6 +79,51 @@ flowchart TD
     InventoryPhysics --> DB
     AnomalyEngine --> DB
     Validation -.-> DB
+```
+
+---
+
+### 2. End-to-End Retail Data Flow & Reconciliation Pipeline
+
+```mermaid
+flowchart LR
+    subgraph Sources["Retail Data Ingestion (20 Stores Across India)"]
+        S1["POS Terminal Event Streams<br/>(Cash, UPI, Cards, Store Credit)"]
+        S2["Inventory Receipts and Returns<br/>(Warehouse POs, Customer Returns)"]
+        S3["Monthly Store and Category Quotas<br/>(Revenue Targets, Margin Budgets)"]
+    end
+
+    subgraph Pipeline["Data Processing and Reconciliation Engine"]
+        Ingest["Transaction Normalizer<br/>(Schema Validation, Deduplication)"]
+        Reconcile{"Reconciliation Invariant Audit<br/>Sum(Stores) == Sum(Categories) == Sum(Regions)"}
+        Physics["Inventory Physics Balance<br/>Closing = Opening + Purchases + Returns - Sold"]
+        Attribution["Period-over-Period Attribution<br/>Delta Decomposition Engine"]
+    end
+
+    subgraph Datastore["High-Performance Storage Layer"]
+        WAL[("SQLite WAL Engine / PostgreSQL<br/>64MB Memory Cache - Sub-10ms Indexed Queries")]
+    end
+
+    subgraph Presentation["Executive Analytics Delivery Tier"]
+        ExecDash["Executive Overview<br/>(Weighted Margins, Pacing, Highlights)"]
+        StoreRank["Store Network Benchmark<br/>(Sales PSF, Quota Attainment)"]
+        MerchMatrix["Product Profitability Matrix<br/>(Pareto 80/20, Loss Leaders)"]
+        Alerts["Statistical Anomaly Radar<br/>(14-Day Rolling Z-Scores)"]
+        PDF["ReportLab PDF Engine<br/>(Vector C-Suite Document Export)"]
+    end
+
+    S1 --> Ingest
+    S2 --> Ingest
+    S3 --> Ingest
+    Ingest --> Reconcile
+    Reconcile --> Physics
+    Physics --> Attribution
+    Attribution --> WAL
+    WAL --> ExecDash
+    WAL --> StoreRank
+    WAL --> MerchMatrix
+    WAL --> Alerts
+    WAL --> PDF
 ```
 
 ---
