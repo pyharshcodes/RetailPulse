@@ -235,7 +235,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo }) => {
 
         .vantage-scope button, .vantage-scope a {
           font-family: inherit;
-          color: inherit;
           text-decoration: none;
           transition: filter 140ms ease, opacity 140ms ease, transform 140ms ease;
         }
@@ -338,18 +337,31 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo }) => {
         }
 
         .vantage-sign-up {
-          background: #fff;
-          color: #000;
-          border: none;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: linear-gradient(135deg, #06b6d4 0%, #2563eb 100%);
+          color: #ffffff !important;
+          border: 1px solid rgba(255, 255, 255, 0.25);
           padding: 8px 18px;
           border-radius: 9999px;
           font-weight: 700;
-          font-size: 14px;
+          font-size: 13px;
+          letter-spacing: 0.01em;
           cursor: pointer;
+          box-shadow: 0 4px 18px rgba(6, 182, 212, 0.38);
+          transition: all 180ms ease;
         }
 
         .vantage-sign-up:hover {
-          background: #e2e8f0;
+          transform: translateY(-1px);
+          box-shadow: 0 6px 24px rgba(6, 182, 212, 0.58);
+          filter: brightness(1.12);
+        }
+
+        .vantage-sign-up span {
+          color: #ffffff !important;
+          font-weight: 700;
         }
 
         /* Hero Content */
@@ -396,19 +408,28 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo }) => {
           display: inline-flex;
           align-items: center;
           gap: 10px;
-          padding: 12px 24px;
-          background: #fff;
-          color: #000;
-          border: none;
+          padding: 13px 26px;
+          background: linear-gradient(135deg, #06b6d4 0%, #2563eb 55%, #4f46e5 100%);
+          color: #ffffff !important;
+          border: 1px solid rgba(255, 255, 255, 0.3);
           border-radius: 9999px;
           font-size: 15px;
           font-weight: 700;
+          letter-spacing: 0.01em;
           cursor: pointer;
-          box-shadow: 0 10px 25px -5px rgba(255, 255, 255, 0.2);
+          box-shadow: 0 8px 28px rgba(6, 182, 212, 0.4), 0 0 1px rgba(255, 255, 255, 0.5) inset;
+          transition: all 180ms ease;
         }
 
         .vantage-primary-cta:hover {
-          transform: translateY(-1px);
+          transform: translateY(-2px);
+          box-shadow: 0 12px 34px rgba(6, 182, 212, 0.6);
+          filter: brightness(1.12);
+        }
+
+        .vantage-primary-cta span {
+          color: #ffffff !important;
+          font-weight: 700;
         }
 
         .vantage-secondary-cta {
@@ -624,7 +645,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo }) => {
             </div>
 
             <button className="vantage-sign-up" type="button" onClick={onExploreDemo}>
-              Launch Demo
+              <Zap className="w-3.5 h-3.5 fill-current text-white" />
+              <span>Launch Demo</span>
             </button>
           </div>
 
@@ -662,8 +684,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo }) => {
 
             <div className="vantage-hero-buttons">
               <button className="vantage-primary-cta" type="button" onClick={onExploreDemo}>
+                <Zap className="w-4 h-4 fill-current text-white" />
                 <span>Enter Command Center</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 text-white" />
               </button>
 
               <button
