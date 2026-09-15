@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -1030,6 +1030,27 @@
       }
       window.addEventListener('resize', handleResize);
       handleResize();
+
+      // Dynamic Live Accurate Clock
+      var timeValue = document.querySelector('.time-value');
+      function updateTime() {
+        if (!timeValue) return;
+        var now = new Date();
+        var timeStr = now.toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true
+        });
+        var dateStr = now.toLocaleDateString('en-US', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        });
+        timeValue.innerHTML = timeStr + '&nbsp; • &nbsp;' + dateStr;
+      }
+      updateTime();
+      setInterval(updateTime, 1000);
     })();
   </script>
 </body>
