@@ -15,8 +15,7 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#02040a"
-      },
-      "package": "com.anonymous.retailpulsemobile"
+      }
     },
     "web": {
       "bundler": "metro"
