@@ -52,11 +52,12 @@ def register_organization(payload: UserRegisterRequest, db: Session = Depends(ge
         currency=payload.currency or "INR",
         currency_symbol=payload.currency_symbol or "₹",
         number_format=payload.number_format or "indian",
-        plan_tier=payload.plan_tier or "free",
-        subscription_status="active",
+        plan_tier=payload.plan_tier or "pro",
+        subscription_status="pending_payment",
         trial_ends_at=trial_end,
         is_active=True,
         api_key=api_key,
+        upi_merchant_id="harshdeepchak97-1@oksbi",
         created_at=now_str
     )
     db.add(tenant)

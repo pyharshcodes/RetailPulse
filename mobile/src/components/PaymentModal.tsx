@@ -26,14 +26,22 @@ import Svg, { Rect, Path } from 'react-native-svg';
 import { colors } from '../theme/colors';
 import { useAuth } from '../context/AuthContext';
 
-export const PaymentModal: React.FC = () => {
+interface PaymentModalProps {
+  isPaywall?: boolean;
+}
+
+export const PaymentModal: React.FC<PaymentModalProps> = ({ isPaywall = false }) => {
   const {
     isPaymentModalOpen,
     closePaymentModal,
     targetUpgradePlan,
+    plans,
     upgradePlanWithUtr,
     formatCurrency,
   } = useAuth();
+
+  const planToDisplay = targetUpgradePlan || plans.find(p => p.id === 'pro') || plans[1] || plans[0];
+  const isVisible = isPaywall || isPaymentModalOpen;
 
   const [utr, setUtr] = useState('');
   const [loading, setLoading] = useState(false);
@@ -43,7 +51,7 @@ export const PaymentModal: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutes
 
   useEffect(() => {
-    if (!isPaymentModalOpen) {
+    if (!isVisible) {
       setUtr('');
       setError(null);
       setSuccess(false);
@@ -56,9 +64,9 @@ export const PaymentModal: React.FC = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isPaymentModalOpen]);
+  }, [isVisible]);
 
-  if (!targetUpgradePlan) return null;
+  if (!planToDisplay) return null;
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
@@ -66,7 +74,7 @@ export const PaymentModal: React.FC = () => {
 
   const upiId = 'harshdeepchak97-1@oksbi';
   const payeeName = 'Harsh deep Chak';
-  const price = targetUpgradePlan.price_monthly;
+  const price = planToDisplay.price_monthly;
 
   const handleCopyUpi = () => {
     setCopied(true);
@@ -82,7 +90,7 @@ export const PaymentModal: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      await upgradePlanWithUtr(targetUpgradePlan.id, utr.trim());
+      await upgradePlanWithUtr(planToDisplay.id, utr.trim());
       setSuccess(true);
       setTimeout(() => {
         closePaymentModal();
@@ -96,10 +104,10 @@ export const PaymentModal: React.FC = () => {
 
   return (
     <Modal
-      visible={isPaymentModalOpen}
+      visible={isVisible}
       animationType="slide"
       transparent={true}
-      onRequestClose={closePaymentModal}
+      onRequestClose={isPaywall ? undefined : closePaymentModal}
     >
       <View style={styles.modalBackdrop}>
         <View style={styles.modalCard}>
@@ -107,15 +115,19 @@ export const PaymentModal: React.FC = () => {
           <View style={styles.headerRow}>
             <View style={styles.headerBadge}>
               <Sparkles color={colors.primary} size={16} />
-              <Text style={styles.headerTitle}>SaaS UPI Instant Gateway</Text>
+              <Text style={styles.headerTitle}>
+                {isPaywall ? 'Workspace Locked — Payment Required' : 'SaaS UPI Instant Gateway'}
+              </Text>
             </View>
-            <TouchableOpacity
-              onPress={closePaymentModal}
-              style={styles.closeBtn}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <X color={colors.textSecondary} size={20} />
-            </TouchableOpacity>
+            {!isPaywall && (
+              <TouchableOpacity
+                onPress={closePaymentModal}
+                style={styles.closeBtn}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <X color={colors.textSecondary} size={20} />
+              </TouchableOpacity>
+            )}
           </View>
 
           <ScrollView
@@ -129,7 +141,7 @@ export const PaymentModal: React.FC = () => {
                 </View>
                 <Text style={styles.successTitle}>Subscription Activated!</Text>
                 <Text style={styles.successSub}>
-                  Your workspace has been upgraded to {targetUpgradePlan.name}. All team
+                  Your workspace has been upgraded to {planToDisplay.name}. All team
                   members now enjoy full unlocked access!
                 </Text>
               </View>
@@ -138,8 +150,8 @@ export const PaymentModal: React.FC = () => {
                 {/* Plan banner */}
                 <View style={styles.planBanner}>
                   <View>
-                    <Text style={styles.planName}>{targetUpgradePlan.name}</Text>
-                    <Text style={styles.planSub}>{targetUpgradePlan.tagline}</Text>
+                    <Text style={styles.planName}>{planToDisplay.name}</Text>
+                    <Text style={styles.planSub}>{planToDisplay.tagline}</Text>
                   </View>
                   <View style={styles.priceContainer}>
                     <Text style={styles.priceValue}>{formatCurrency(price)}</Text>

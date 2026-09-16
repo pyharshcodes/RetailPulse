@@ -12,6 +12,7 @@ import { LandingPage } from './components/landing/LandingPage';
 import { AuthModal } from './components/auth/AuthModal';
 import { DataImportModal } from './components/onboarding/DataImportModal';
 import { OrganizationSettingsModal } from './components/analytics/OrganizationSettingsModal';
+import { PaymentModal } from './components/payment/PaymentModal';
 
 // Analytics Views
 import { ExecutiveOverviewView } from './components/analytics/ExecutiveOverviewView';
@@ -30,6 +31,9 @@ import { ExplorerView } from './components/analytics/ExplorerView';
 export function AppContent() {
   const { isDemo, tenant } = useAuth();
   const { setFilters } = useFilters();
+
+  // Strict SaaS Paywall Barrier: Block dashboard access until subscription payment is verified
+  const isPaywallLocked = !!tenant && !isDemo && tenant.id !== 'demo_tenant' && tenant.subscription_status !== 'active';
 
   // Experience Switch: 'landing' | 'demo_loading' | 'dashboard'
   const [experience, setExperience] = useState<'landing' | 'demo_loading' | 'dashboard'>('landing');
@@ -252,6 +256,14 @@ export function AppContent() {
       <OrganizationSettingsModal
         isOpen={settingsModalOpen}
         onClose={() => setSettingsModalOpen(false)}
+      />
+
+      {/* Strict SaaS Paywall Barrier */}
+      <PaymentModal
+        isOpen={isPaywallLocked}
+        isPaywall={true}
+        selectedPlan={(tenant?.plan_tier as any) || 'pro'}
+        onClose={() => {}}
       />
     </div>
   );

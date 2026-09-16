@@ -6,7 +6,7 @@ Provides period comparison window calculations.
 
 from datetime import datetime, timedelta
 from typing import Optional, Tuple
-from fastapi import Query, Depends
+from fastapi import Query, Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Query as SQLQuery
 from backend.app.models.transaction import Transaction
@@ -38,6 +38,11 @@ def get_filter_params(
     sales_channel: Optional[str] = Query(None, description="Sales Channel filter"),
     tenant: Tenant = Depends(get_current_tenant),
 ) -> FilterParams:
+    if tenant and tenant.id != "demo_tenant" and tenant.subscription_status != "active":
+        raise HTTPException(
+            status_code=status.HTTP_402_PAYMENT_REQUIRED,
+            detail="Workspace payment required. Please scan Harsh deep Chak's Google Pay QR (harshdeepchak97-1@oksbi) and verify your UTR to unlock analytics."
+        )
     return FilterParams(
         start_date=start_date,
         end_date=end_date,

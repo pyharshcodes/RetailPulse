@@ -215,7 +215,8 @@ def change_tenant_plan(
     requested = payload.plan_tier.lower()
     if requested in ["free", "starter"]:
         tenant.plan_tier = "free"
-        tenant.subscription_status = "active"
+        if tenant.last_payment_ref:
+            tenant.subscription_status = "active"
         db.commit()
         db.refresh(tenant)
         return TenantOut.model_validate(tenant)

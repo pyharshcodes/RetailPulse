@@ -9,6 +9,8 @@ import {
   Sparkles,
   ArrowRight,
   AlertCircle,
+  Lock,
+  LogOut,
   Clock,
   Smartphone
 } from 'lucide-react';
@@ -19,9 +21,10 @@ import { TenantOut } from '../../types';
 interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  selectedPlan: 'pro' | 'business';
+  selectedPlan?: 'pro' | 'business';
   defaultBilling?: 'monthly' | 'annual';
   onSuccess?: (tenant: TenantOut) => void;
+  isPaywall?: boolean;
 }
 
 export const PaymentModal: React.FC<PaymentModalProps> = ({
@@ -30,9 +33,13 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   selectedPlan = 'pro',
   defaultBilling = 'monthly',
   onSuccess,
+  isPaywall = false,
 }) => {
-  const { tenant, refreshTenant } = useAuth();
+  const { tenant, refreshTenant, logout } = useAuth();
 
+  const [activePlan, setActivePlan] = useState<'pro' | 'business'>(
+    selectedPlan === 'business' ? 'business' : 'pro'
+  );
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>(defaultBilling);
   const [currency, setCurrency] = useState<'INR' | 'USD'>('INR');
   const [utrRef, setUtrRef] = useState('');
@@ -43,6 +50,12 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
   // 10-Minute Payment Session Countdown
   const [timeLeft, setTimeLeft] = useState(600);
+
+  useEffect(() => {
+    if (selectedPlan) {
+      setActivePlan(selectedPlan === 'business' ? 'business' : 'pro');
+    }
+  }, [selectedPlan]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -108,7 +121,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     }
   };
 
-  const planInfo = pricingData[selectedPlan];
+  const planInfo = pricingData[activePlan];
   const payableAmount =
     currency === 'INR'
       ? (billingCycle === 'annual' ? planInfo.INR.annual : planInfo.INR.monthly)
@@ -119,7 +132,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       ? `₹${payableAmount.toLocaleString('en-IN')}`
       : `$${payableAmount}`;
 
-  // UPI merchant receiver
+  // Official UPI merchant receiver - Harsh deep Chak
   const upiId = 'harshdeepchak97-1@oksbi';
   const payeeName = 'Harsh deep Chak';
   const upiNote = `RetailPulse ${planInfo.name} ${billingCycle}`;
@@ -148,12 +161,12 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
     try {
       const updatedTenant = await api.verifyPayment({
-        plan_tier: selectedPlan,
+        plan_tier: activePlan,
         billing_cycle: billingCycle,
         amount: payableAmount,
         currency,
         utr_reference: utrRef.trim().toUpperCase(),
-        notes: `Paid via UPI QR for ${selectedPlan.toUpperCase()} ${billingCycle}`,
+        notes: `Paid via UPI QR for ${activePlan.toUpperCase()} ${billingCycle}`,
       });
 
       await refreshTenant();
@@ -165,7 +178,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       }, 1500);
     } catch (err: any) {
       setErrorMsg(
-        err.response?.data?.detail || 'Payment verification failed. Please verify your reference number.'
+        err.response?.data?.detail || 'Payment verification failed. Please check your 12-digit UTR reference.'
       );
     } finally {
       setIsVerifying(false);
@@ -173,37 +186,48 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-xl bg-slate-900 border border-cyan-500/30 rounded-2xl shadow-2xl overflow-hidden text-slate-100 flex flex-col max-h-[95vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="relative w-full max-w-xl bg-slate-900 border border-cyan-500/40 rounded-2xl shadow-2xl overflow-hidden text-slate-100 flex flex-col max-h-[95vh]">
         {/* Ambient Top Glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-24 bg-cyan-500/15 blur-3xl pointer-events-none" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-24 bg-cyan-500/20 blur-3xl pointer-events-none" />
 
         {/* Top Header */}
         <div className="p-6 pb-4 border-b border-white/10 flex items-center justify-between relative z-10">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-brand-600 flex items-center justify-center text-white shadow-lg shadow-cyan-500/20">
-              {selectedPlan === 'pro' ? <Zap className="w-5 h-5" /> : <Building className="w-5 h-5" />}
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg ${
+              isPaywall
+                ? 'bg-gradient-to-tr from-amber-600 to-rose-600 shadow-rose-500/20'
+                : 'bg-gradient-to-tr from-cyan-600 to-brand-600 shadow-cyan-500/20'
+            }`}>
+              {isPaywall ? <Lock className="w-5 h-5" /> : (activePlan === 'pro' ? <Zap className="w-5 h-5" /> : <Building className="w-5 h-5" />)}
             </div>
             <div>
               <div className="flex items-center space-x-2">
                 <h2 className="text-lg font-bold text-white tracking-tight">
-                  Upgrade to {planInfo.name}
+                  {isPaywall ? 'Workspace Locked — Payment Required' : `Upgrade to ${planInfo.name}`}
                 </h2>
                 <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 uppercase">
-                  {selectedPlan.toUpperCase()}
+                  {activePlan.toUpperCase()}
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                Workspace: <span className="text-slate-200 font-medium">{tenant?.name}</span>
+                {isPaywall ? (
+                  <span>Scan QR to activate workspace for <strong className="text-slate-200">{tenant?.name}</strong></span>
+                ) : (
+                  <span>Workspace: <strong className="text-slate-200 font-medium">{tenant?.name}</strong></span>
+                )}
               </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+
+          {!isPaywall && (
+            <button
+              onClick={onClose}
+              className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
 
         {/* Modal Body */}
@@ -226,6 +250,52 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             </div>
           ) : (
             <>
+              {/* Paywall Banner Alert */}
+              {isPaywall && (
+                <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start space-x-3 text-xs text-amber-200">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-amber-400 mt-0.5" />
+                  <div>
+                    <strong className="text-white block font-semibold mb-0.5">Payment Verification Required</strong>
+                    Free access is blocked. Complete payment to <strong>Harsh deep Chak</strong> via the Google Pay QR below to unlock your dashboard and team access.
+                  </div>
+                </div>
+              )}
+
+              {/* Plan Tier Selector */}
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActivePlan('pro')}
+                  className={`p-3 rounded-xl border text-left transition-all ${
+                    activePlan === 'pro'
+                      ? 'bg-cyan-950/60 border-cyan-500 text-white shadow-md shadow-cyan-500/10'
+                      : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-cyan-300">Pro Growth</span>
+                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300">₹499/mo</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-1">Up to 5 stores, 50k txns/mo, POS streaming</p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActivePlan('business')}
+                  className={`p-3 rounded-xl border text-left transition-all ${
+                    activePlan === 'business'
+                      ? 'bg-cyan-950/60 border-cyan-500 text-white shadow-md shadow-cyan-500/10'
+                      : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-indigo-300">Business Enterprise</span>
+                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300">₹1,499/mo</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-1">Unlimited stores, 500k txns/mo, full ERP sync</p>
+                </button>
+              </div>
+
               {/* Billing Cycle & Price Header */}
               <div className="p-4 rounded-xl bg-slate-950/80 border border-white/10 flex flex-wrap items-center justify-between gap-3">
                 {/* Billing toggle */}
@@ -359,13 +429,24 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 )}
 
                 <div className="pt-2 flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className="flex-1 py-3 px-4 rounded-xl text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 transition-colors border border-slate-700"
-                  >
-                    Cancel
-                  </button>
+                  {isPaywall ? (
+                    <button
+                      type="button"
+                      onClick={logout}
+                      className="py-3 px-4 rounded-xl text-xs font-bold text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 transition-colors border border-rose-500/30 flex items-center space-x-1.5"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span>Sign Out</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="flex-1 py-3 px-4 rounded-xl text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 transition-colors border border-slate-700"
+                    >
+                      Cancel
+                    </button>
+                  )}
                   <button
                     type="submit"
                     disabled={isVerifying || !utrRef.trim()}
@@ -375,7 +456,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                       <span>Verifying Payment...</span>
                     ) : (
                       <>
-                        <span>Confirm & Activate {planInfo.name}</span>
+                        <span>{isPaywall ? 'Verify & Unlock Workspace' : `Confirm & Activate ${planInfo.name}`}</span>
                         <ArrowRight className="w-4 h-4" />
                       </>
                     )}

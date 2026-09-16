@@ -17,7 +17,7 @@ import {
   LucideIcon,
 } from 'lucide-react-native';
 import { colors } from './src/theme/colors';
-import { AuthProvider } from './src/context/AuthContext';
+import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { Header } from './src/components/Header';
 import { PaymentModal } from './src/components/PaymentModal';
 import { HomeScreen } from './src/screens/HomeScreen';
@@ -28,6 +28,8 @@ import { ProfileScreen } from './src/screens/ProfileScreen';
 type TabKey = 'home' | 'analytics' | 'insights' | 'profile';
 
 function MainApp() {
+  const { tenant } = useAuth();
+  const isPaywallLocked = tenant.subscription_status !== 'active';
   const [currentTab, setCurrentTab] = useState<TabKey>('home');
 
   const tabs: { key: TabKey; label: string; icon: LucideIcon }[] = [
@@ -96,8 +98,8 @@ function MainApp() {
         })}
       </View>
 
-      {/* Global Payment & UPI QR Modal */}
-      <PaymentModal />
+      {/* Global Payment & UPI QR Modal (Locked behind paywall if subscription is inactive) */}
+      <PaymentModal isPaywall={isPaywallLocked} />
     </SafeAreaView>
   );
 }
