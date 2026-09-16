@@ -6,7 +6,7 @@ class UserRegisterRequest(BaseModel):
     full_name: str = Field(..., min_length=2, max_length=150)
     email: EmailStr
     password: str = Field(..., min_length=6, max_length=100)
-    plan_tier: Optional[str] = "pro"
+    plan_tier: Optional[str] = "free"
     industry: Optional[str] = "Retail & Electronics"
     currency: Optional[str] = "INR"
     currency_symbol: Optional[str] = "₹"
@@ -30,7 +30,15 @@ class PlanTierOut(BaseModel):
     features: List[str]
 
 class ChangePlanRequest(BaseModel):
-    plan_tier: str = Field(..., description="starter, pro, or business")
+    plan_tier: str = Field(..., description="free, pro, or business")
+
+class PaymentVerificationRequest(BaseModel):
+    plan_tier: str = Field(..., description="pro or business")
+    billing_cycle: str = Field(default="monthly", description="monthly or annual")
+    amount: float = Field(..., gt=0)
+    currency: str = Field(default="INR")
+    utr_reference: str = Field(..., min_length=4, max_length=100)
+    notes: Optional[str] = None
 
 
 class UserLoginRequest(BaseModel):
@@ -59,6 +67,11 @@ class TenantOut(BaseModel):
     currency_symbol: str
     number_format: str
     plan_tier: str
+    subscription_status: Optional[str] = "active"
+    last_payment_ref: Optional[str] = None
+    last_payment_at: Optional[str] = None
+    last_payment_amount: Optional[float] = 0.0
+    upi_merchant_id: Optional[str] = "retailpulse@upi"
     api_key: Optional[str] = None
     is_active: bool
 

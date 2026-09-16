@@ -6,7 +6,7 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultTab?: 'login' | 'register' | 'demo';
-  defaultPlan?: 'starter' | 'pro' | 'business';
+  defaultPlan?: 'free' | 'starter' | 'pro' | 'business';
   onSuccess?: () => void;
 }
 
@@ -14,14 +14,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   isOpen,
   onClose,
   defaultTab = 'login',
-  defaultPlan = 'pro',
+  defaultPlan = 'free',
   onSuccess,
 }) => {
   const { login, register, loginDemo, isLoading } = useAuth();
   const [tab, setTab] = useState<'login' | 'register' | 'demo'>(defaultTab);
 
   // Form states
-  const [planTier, setPlanTier] = useState<'starter' | 'pro' | 'business'>(defaultPlan);
+  const [planTier, setPlanTier] = useState<'free' | 'starter' | 'pro' | 'business'>(defaultPlan);
 
   useEffect(() => {
     if (isOpen) {
@@ -328,16 +328,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <div className="grid grid-cols-3 gap-2">
                   <button
                     type="button"
-                    onClick={() => setPlanTier('starter')}
+                    onClick={() => setPlanTier('free')}
                     className={`p-2.5 rounded-xl border text-center transition-all ${
-                      planTier === 'starter'
-                        ? 'bg-brand-950/70 border-brand-500 text-white shadow-md ring-1 ring-brand-500/50'
+                      planTier === 'free' || planTier === 'starter'
+                        ? 'bg-emerald-950/70 border-emerald-500 text-white shadow-md ring-1 ring-emerald-500/50'
                         : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
                     }`}
                   >
-                    <div className="text-xs font-bold text-white">Starter</div>
-                    <div className="text-[10px] text-cyan-400 font-mono mt-0.5">{currency === 'INR' ? '₹4,999/mo' : '$59/mo'}</div>
-                    <div className="text-[9px] text-slate-400 mt-1">Up to 3 Stores</div>
+                    <div className="text-xs font-bold text-white">Free</div>
+                    <div className="text-[10px] text-emerald-400 font-mono mt-0.5">₹0 / Forever</div>
+                    <div className="text-[9px] text-slate-400 mt-1">1 Store Counter</div>
                   </button>
 
                   <button
@@ -345,16 +345,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     onClick={() => setPlanTier('pro')}
                     className={`p-2.5 rounded-xl border text-center transition-all relative ${
                       planTier === 'pro'
-                        ? 'bg-indigo-950/70 border-indigo-500 text-white shadow-md ring-1 ring-indigo-500/60'
+                        ? 'bg-cyan-950/70 border-cyan-500 text-white shadow-md ring-1 ring-cyan-500/60'
                         : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
                     }`}
                   >
-                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-1.5 py-0.2 bg-gradient-to-r from-brand-500 to-indigo-500 text-[8px] font-bold text-white rounded-full uppercase tracking-wider">
+                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-1.5 py-0.2 bg-gradient-to-r from-cyan-500 to-brand-600 text-[8px] font-bold text-white rounded-full uppercase tracking-wider">
                       Popular
                     </span>
-                    <div className="text-xs font-bold text-white">Pro</div>
-                    <div className="text-[10px] text-indigo-400 font-mono mt-0.5">{currency === 'INR' ? '₹14,999/mo' : '$179/mo'}</div>
-                    <div className="text-[9px] text-slate-400 mt-1">Up to 15 Stores</div>
+                    <div className="text-xs font-bold text-white">Pro Growth</div>
+                    <div className="text-[10px] text-cyan-400 font-mono mt-0.5">{currency === 'INR' ? '₹499/mo' : '$9/mo'}</div>
+                    <div className="text-[9px] text-slate-400 mt-1">Up to 5 Stores</div>
                   </button>
 
                   <button
@@ -367,7 +367,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     }`}
                   >
                     <div className="text-xs font-bold text-white">Business</div>
-                    <div className="text-[10px] text-amber-400 font-mono mt-0.5">{currency === 'INR' ? '₹39,999/mo' : '$479/mo'}</div>
+                    <div className="text-[10px] text-amber-400 font-mono mt-0.5">{currency === 'INR' ? '₹1,499/mo' : '$29/mo'}</div>
                     <div className="text-[9px] text-slate-400 mt-1">Unlimited + ERP</div>
                   </button>
                 </div>

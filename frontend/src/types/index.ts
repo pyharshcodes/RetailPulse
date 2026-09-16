@@ -310,11 +310,25 @@ export interface TenantOut {
   number_format?: string;
   plan_tier?: string;
   plan?: string;
+  subscription_status?: string;
+  last_payment_ref?: string;
+  last_payment_at?: string;
+  last_payment_amount?: number;
+  upi_merchant_id?: string;
   is_demo?: boolean;
   is_active?: boolean;
   created_at?: string;
   settings?: Record<string, any>;
   api_key?: string;
+}
+
+export interface PaymentVerificationRequest {
+  plan_tier: string;
+  billing_cycle: 'monthly' | 'annual';
+  amount: number;
+  currency: string;
+  utr_reference: string;
+  notes?: string;
 }
 
 export interface AuthResponse {

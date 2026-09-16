@@ -15,7 +15,8 @@ from backend.app.schemas.saas import (
     UserOut,
     PlanTierOut,
     PlanPricing,
-    ChangePlanRequest
+    ChangePlanRequest,
+    PaymentVerificationRequest
 )
 
 router = APIRouter()
@@ -28,28 +29,37 @@ def get_current_tenant_settings(
     return TenantOut.model_validate(tenant)
 
 @router.put("/current", response_model=TenantOut)
-@router.patch("/current", response_model=TenantOut)
-def update_tenant_settings(
+def update_current_tenant_settings(
     payload: TenantUpdateRequest,
     tenant: Tenant = Depends(get_current_tenant),
     user: User = Depends(require_role(["owner", "admin"])),
     db: Session = Depends(get_db)
 ):
-    """Update organization name, currency, currency symbol, or number formatting."""
-    if payload.name:
+    """Update organization name, reporting currency, number formatting or industry."""
+    if payload.name is not None:
         tenant.name = payload.name.strip()
-    if payload.industry:
-        tenant.industry = payload.industry.strip()
-    if payload.currency:
-        tenant.currency = payload.currency.strip().upper()
-    if payload.currency_symbol:
-        tenant.currency_symbol = payload.currency_symbol.strip()
-    if payload.number_format:
-        tenant.number_format = payload.number_format.strip()
+    if payload.industry is not None:
+        tenant.industry = payload.industry
+    if payload.currency is not None:
+        tenant.currency = payload.currency.upper()
+    if payload.currency_symbol is not None:
+        tenant.currency_symbol = payload.currency_symbol
+    if payload.number_format is not None:
+        tenant.number_format = payload.number_format
 
     db.commit()
     db.refresh(tenant)
     return TenantOut.model_validate(tenant)
+
+@router.patch("/current", response_model=TenantOut)
+def patch_current_tenant_settings(
+    payload: TenantUpdateRequest,
+    tenant: Tenant = Depends(get_current_tenant),
+    user: User = Depends(require_role(["owner", "admin"])),
+    db: Session = Depends(get_db)
+):
+    """Alias for PATCH update of organization settings."""
+    return update_current_tenant_settings(payload, tenant, user, db)
 
 @router.post("/api-key")
 def regenerate_api_key(
@@ -57,7 +67,7 @@ def regenerate_api_key(
     user: User = Depends(require_role(["owner", "admin"])),
     db: Session = Depends(get_db)
 ):
-    """Regenerate private API key for ERP or custom register syncing."""
+    """Regenerate private ingestion API key for external POS / ERP sync."""
     new_key = f"rp_live_{uuid.uuid4().hex}"
     tenant.api_key = new_key
     db.commit()
@@ -115,82 +125,81 @@ def invite_team_member(
 
 @router.get("/plans", response_model=List[PlanTierOut])
 def get_available_plans():
-    """Returns available SaaS plans, pricing in INR and USD, and feature matrices."""
+    """Returns available SaaS plans, low affordable pricing in INR and USD, and feature matrices."""
     return [
         PlanTierOut(
-            id="starter",
-            name="Starter",
-            tagline="For single stores and emerging retail outlets.",
+            id="free",
+            name="Free Forever",
+            tagline="Essential analytics for boutique shops & single counters. Zero cost, no card required.",
             pricing=PlanPricing(
-                inr_monthly=4999,
-                inr_annual=3999,
-                usd_monthly=59,
-                usd_annual=49
+                inr_monthly=0,
+                inr_annual=0,
+                usd_monthly=0,
+                usd_annual=0
             ),
             is_popular=False,
-            badge=None,
-            store_limit=3,
-            txn_limit="25,000 / mo",
+            badge="ALWAYS FREE",
+            store_limit=1,
+            txn_limit="2,500 / mo",
             features=[
-                "Up to 3 Store Locations",
-                "25,000 Monthly Transactions",
+                "1 Store Location / Counter",
+                "2,500 Monthly Transactions",
                 "Historical CSV & Excel Ingestion",
                 "Executive Sales & Margin Cockpit",
-                "Standard Inventory Stock Tracking",
-                "2 Team Seats",
-                "Standard Email Support"
+                "Inventory Stock & Top 10 SKUs",
+                "2 Team Seats (Free for all members)",
+                "Community Support"
             ]
         ),
         PlanTierOut(
             id="pro",
-            name="Professional",
-            tagline="For fast-growing multi-store chains & regional brands.",
+            name="Pro Growth",
+            tagline="High-velocity intelligence for scaling retail chains & franchise stores.",
             pricing=PlanPricing(
-                inr_monthly=14999,
-                inr_annual=11999,
-                usd_monthly=179,
-                usd_annual=149
+                inr_monthly=499,
+                inr_annual=399,
+                usd_monthly=9,
+                usd_annual=7
             ),
             is_popular=True,
             badge="MOST POPULAR",
-            store_limit=15,
-            txn_limit="250,000 / mo",
+            store_limit=5,
+            txn_limit="50,000 / mo",
             features=[
-                "Up to 15 Store Locations",
-                "250,000 Monthly Transactions",
+                "Up to 5 Store Locations",
+                "50,000 Monthly Transactions",
                 "Real-Time Live POS Streamer Engine",
                 "COGS Waterfall & Margin Risk Radar",
-                "Automated Stockout Alarms",
-                "REST API Key for SAP / ERP Ingestion",
-                "Executive Board PDF Reports & CSV Exports",
-                "10 Team Seats (Owner, Admin, Managers)",
-                "Priority 24/7 SLA Support"
+                "Dead Inventory (>90 Days) Stockout Alarms",
+                "Regional Geography Heatmaps",
+                "REST API Key for POS Ingestion",
+                "5 Team Seats + Role Permissions",
+                "Priority Email & WhatsApp Support"
             ]
         ),
         PlanTierOut(
             id="business",
             name="Business Enterprise",
-            tagline="For large warehouse networks, hypermarket chains & enterprise franchises.",
+            tagline="For warehouse networks, hypermarket chains & omnichannel multi-brand groups.",
             pricing=PlanPricing(
-                inr_monthly=39999,
-                inr_annual=31999,
-                usd_monthly=479,
-                usd_annual=399
+                inr_monthly=1499,
+                inr_annual=1199,
+                usd_monthly=29,
+                usd_annual=24
             ),
             is_popular=False,
             badge="ENTERPRISE",
             store_limit=999,
-            txn_limit="Unlimited",
+            txn_limit="500,000 / mo",
             features=[
                 "Unlimited Stores & Warehouses",
-                "Unlimited Transactions & Real-Time Ingestion",
-                "Multi-Brand & Regional Franchise Isolation",
+                "500,000 Monthly Transactions",
+                "High-Throughput Real-Time Live Streaming",
+                "Multi-Brand Isolation & Tenant Namespaces",
                 "Custom ERP Connectors (SAP, Oracle, Tally)",
-                "Omni-Search & Natural Language Receipt Auditing",
-                "Store & Category Performance Quotas",
+                "Executive Board PDF Reports & CSV Exports",
                 "Unlimited Team Seats & Granular Permissions",
-                "Dedicated Account Manager & 99.99% SLA",
-                "Custom Data Retention & On-Premises Option"
+                "Dedicated Account Manager & 99.99% SLA"
             ]
         )
     ]
@@ -202,11 +211,58 @@ def change_tenant_plan(
     user: User = Depends(require_role(["owner", "admin"])),
     db: Session = Depends(get_db)
 ):
-    """Switch tenant subscription tier between starter, pro, and business."""
-    if payload.plan_tier not in ["starter", "pro", "business"]:
-        raise HTTPException(status_code=400, detail="Invalid plan tier. Must be starter, pro, or business.")
-    tenant.plan_tier = payload.plan_tier
+    """Switch tenant subscription tier. Free tier is instant. Paid tiers require verified payment."""
+    requested = payload.plan_tier.lower()
+    if requested in ["free", "starter"]:
+        tenant.plan_tier = "free"
+        tenant.subscription_status = "active"
+        db.commit()
+        db.refresh(tenant)
+        return TenantOut.model_validate(tenant)
+
+    if requested not in ["pro", "business"]:
+        raise HTTPException(status_code=400, detail="Invalid plan tier. Must be free, pro, or business.")
+
+    # If tenant has already completed verified payment for this plan
+    if tenant.plan_tier == requested and tenant.subscription_status == "active":
+        return TenantOut.model_validate(tenant)
+
+    # If switching to paid tier, payment verification is required
+    if not tenant.last_payment_ref:
+        raise HTTPException(
+            status_code=402,
+            detail=f"Payment verification required to activate {requested.upper()} plan. Please scan the UPI QR code and submit your UTR reference."
+        )
+
+    tenant.plan_tier = requested
+    tenant.subscription_status = "active"
     db.commit()
     db.refresh(tenant)
     return TenantOut.model_validate(tenant)
 
+@router.post("/verify-payment", response_model=TenantOut)
+def verify_tenant_payment(
+    payload: PaymentVerificationRequest,
+    tenant: Tenant = Depends(get_current_tenant),
+    user: User = Depends(require_role(["owner", "admin"])),
+    db: Session = Depends(get_db)
+):
+    """Verifies UPI transaction reference and activates requested paid subscription tier."""
+    requested = payload.plan_tier.lower()
+    if requested not in ["pro", "business"]:
+        raise HTTPException(status_code=400, detail="Payment verification is only required for Pro or Business plans.")
+
+    utr = payload.utr_reference.strip().upper()
+    if len(utr) < 4:
+        raise HTTPException(status_code=400, detail="A valid UPI UTR / Transaction Reference ID (min 4 chars) is required.")
+
+    now_str = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    tenant.plan_tier = requested
+    tenant.subscription_status = "active"
+    tenant.last_payment_ref = utr
+    tenant.last_payment_at = now_str
+    tenant.last_payment_amount = payload.amount
+
+    db.commit()
+    db.refresh(tenant)
+    return TenantOut.model_validate(tenant)

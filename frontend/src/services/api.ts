@@ -15,7 +15,8 @@ import {
   AuthResponse,
   IngestionSummary,
   SimulatedTransaction,
-  PlanTierOut
+  PlanTierOut,
+  PaymentVerificationRequest
 } from '../types';
 
 const apiClient = axios.create({
@@ -283,6 +284,11 @@ export const api = {
 
   changePlan: async (plan_tier: string): Promise<TenantOut> => {
     const res = await apiClient.post('/tenants/change-plan', { plan_tier });
+    return res.data;
+  },
+
+  verifyPayment: async (payload: PaymentVerificationRequest): Promise<TenantOut> => {
+    const res = await apiClient.post('/tenants/verify-payment', payload);
     return res.data;
   },
 

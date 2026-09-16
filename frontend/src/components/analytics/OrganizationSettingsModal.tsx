@@ -17,6 +17,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
 import { UserOut } from '../../types';
+import { PaymentModal } from '../payment/PaymentModal';
 
 interface OrganizationSettingsModalProps {
   isOpen: boolean;
@@ -40,15 +41,20 @@ export const OrganizationSettingsModal: React.FC<OrganizationSettingsModalProps>
   const [copied, setCopied] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
 
-  // Team states
+  // Team state
   const [teamMembers, setTeamMembers] = useState<UserOut[]>([]);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteName, setInviteName] = useState('');
-  const [inviteRole, setInviteRole] = useState('manager');
+  const [inviteRole, setInviteRole] = useState('viewer');
   const [inviting, setInviting] = useState(false);
 
-  const [saving, setSaving] = useState(false);
+  // Status feedback
   const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  // Payment Modal state
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [paymentModalPlan, setPaymentModalPlan] = useState<'pro' | 'business'>('pro');
 
   useEffect(() => {
     if (tenant) {
@@ -146,22 +152,34 @@ export const OrganizationSettingsModal: React.FC<OrganizationSettingsModalProps>
     }
   };
 
-  const handleUpgradePlan = async (tier: string) => {
+  const handleSelectPlan = async (tier: 'free' | 'pro' | 'business') => {
     if (isDemo) {
       alert('Plan switching is disabled in demo mode. Create an organization workspace to choose your package.');
       return;
     }
-    setSaving(true);
-    setStatusMsg(null);
-    try {
-      await api.changePlan(tier);
-      await refreshTenant();
-      setStatusMsg({ type: 'success', text: `Subscription successfully updated to ${tier.toUpperCase()} package!` });
-    } catch (err: any) {
-      setStatusMsg({ type: 'error', text: err.response?.data?.detail || 'Failed to update subscription.' });
-    } finally {
-      setSaving(false);
+
+    // Free plan activates immediately with zero payment
+    if (tier === 'free') {
+      setSaving(true);
+      setStatusMsg(null);
+      try {
+        await api.changePlan('free');
+        await refreshTenant();
+        setStatusMsg({
+          type: 'success',
+          text: 'Switched to Free Forever plan! All team members have free access to your workspace.'
+        });
+      } catch (err: any) {
+        setStatusMsg({ type: 'error', text: err.response?.data?.detail || 'Failed to switch to Free plan.' });
+      } finally {
+        setSaving(false);
+      }
+      return;
     }
+
+    // Paid plans (Pro or Business) trigger the UPI QR Payment Modal
+    setPaymentModalPlan(tier);
+    setPaymentModalOpen(true);
   };
 
   return (
@@ -457,47 +475,59 @@ export const OrganizationSettingsModal: React.FC<OrganizationSettingsModalProps>
           {/* TAB 4: PLANS & PACKAGES */}
           {activeTab === 'plans' && (
             <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+              <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <div className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Current Active Plan</div>
                   <div className="text-base font-bold text-white flex items-center gap-2 mt-0.5">
-                    <span>{tenant?.plan_tier?.toUpperCase() || 'PRO'}</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                      Active
+                    <span className="text-cyan-400">
+                      {tenant?.plan_tier === 'free' ? 'FREE FOREVER' : (tenant?.plan_tier?.toUpperCase() || 'FREE FOREVER')}
+                    </span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-mono">
+                      {tenant?.subscription_status === 'active' ? 'Active' : 'Trial'}
                     </span>
                   </div>
+                  {tenant?.last_payment_ref && (
+                    <div className="text-[11px] font-mono text-slate-400 mt-1">
+                      Last UTR: <span className="text-white">{tenant.last_payment_ref}</span> • Paid: ₹{tenant.last_payment_amount || 499}
+                    </div>
+                  )}
                 </div>
                 <div className="text-right">
-                  <div className="text-xs text-slate-400">Workspace</div>
-                  <div className="text-xs font-semibold text-brand-400">{tenant?.name}</div>
+                  <div className="text-xs text-slate-400">Workspace / Team Access</div>
+                  <div className="text-xs font-semibold text-brand-400">
+                    {tenant?.name} • All {teamMembers.length || 1} team seats covered
+                  </div>
                 </div>
               </div>
 
               {/* 3 Package Cards Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {/* Starter */}
+                {/* 1. Free Forever */}
                 <div className={`p-4 rounded-xl border flex flex-col justify-between transition-all ${
-                  (tenant?.plan_tier || 'trial') === 'starter'
-                    ? 'bg-slate-950 border-brand-500 ring-1 ring-brand-500/40'
+                  (tenant?.plan_tier || 'free') === 'free'
+                    ? 'bg-slate-950 border-emerald-500/60 ring-1 ring-emerald-500/40'
                     : 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
                 }`}>
                   <div>
-                    <div className="text-sm font-bold text-white">Starter</div>
-                    <p className="text-[11px] text-slate-400 mt-0.5">For single stores & boutique retail</p>
-                    <div className="mt-3">
-                      <span className="text-xl font-extrabold text-white">
-                        {tenant?.currency === 'USD' ? '$59' : '₹4,999'}
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm font-bold text-white">Free Forever</div>
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">
+                        ₹0 / $0
                       </span>
-                      <span className="text-xs text-slate-400"> / month</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-0.5">Always free for single boutique counters</p>
+                    <div className="mt-3">
+                      <span className="text-2xl font-black text-white">₹0</span>
+                      <span className="text-xs text-slate-400"> / forever</span>
                     </div>
                     <ul className="mt-4 space-y-1.5 text-xs text-slate-300">
                       <li className="flex items-center gap-1.5">
                         <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                        Up to 3 Store Locations
+                        1 Store Counter Location
                       </li>
                       <li className="flex items-center gap-1.5">
                         <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                        25k Monthly Txns
+                        2,500 Monthly Transactions
                       </li>
                       <li className="flex items-center gap-1.5">
                         <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
@@ -505,119 +535,125 @@ export const OrganizationSettingsModal: React.FC<OrganizationSettingsModalProps>
                       </li>
                       <li className="flex items-center gap-1.5">
                         <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                        2 Team Seats
+                        2 Team Seats (Free for team)
                       </li>
                     </ul>
                   </div>
 
                   <button
                     type="button"
-                    disabled={(tenant?.plan_tier || 'trial') === 'starter' || saving}
-                    onClick={() => handleUpgradePlan('starter')}
+                    disabled={(tenant?.plan_tier || 'free') === 'free' || saving}
+                    onClick={() => handleSelectPlan('free')}
                     className="mt-5 w-full py-2 rounded-lg text-xs font-bold transition-all border border-slate-700 hover:bg-slate-800 disabled:opacity-50 text-slate-200"
                   >
-                    {(tenant?.plan_tier || 'trial') === 'starter' ? 'Current Package' : 'Switch to Starter'}
+                    {(tenant?.plan_tier || 'free') === 'free' ? 'Current Active' : 'Switch to Free'}
                   </button>
                 </div>
 
-                {/* Pro */}
+                {/* 2. Pro Growth */}
                 <div className={`p-4 rounded-xl border flex flex-col justify-between transition-all relative ${
-                  (tenant?.plan_tier || 'trial') === 'pro' || (tenant?.plan_tier || 'trial') === 'trial'
-                    ? 'bg-indigo-950/40 border-indigo-500 ring-1 ring-indigo-500/50'
+                  tenant?.plan_tier === 'pro'
+                    ? 'bg-indigo-950/40 border-cyan-500 ring-1 ring-cyan-500/50'
                     : 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
                 }`}>
-                  <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-gradient-to-r from-brand-500 to-indigo-500 text-[9px] font-bold text-white rounded-full uppercase tracking-wider shadow-sm">
+                  <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-gradient-to-r from-cyan-500 to-brand-600 text-[9px] font-bold text-white rounded-full uppercase tracking-wider shadow-sm">
                     Most Popular
                   </span>
                   <div>
-                    <div className="text-sm font-bold text-white">Professional</div>
-                    <p className="text-[11px] text-slate-400 mt-0.5">For growing multi-store chains</p>
+                    <div className="flex items-center justify-between mt-1">
+                      <div className="text-sm font-bold text-white">Pro Growth</div>
+                      <span className="text-[9px] font-mono text-cyan-400 font-semibold">Low Cost</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-0.5">For scaling retail stores & chains</p>
                     <div className="mt-3">
-                      <span className="text-xl font-extrabold text-white">
-                        {tenant?.currency === 'USD' ? '$179' : '₹14,999'}
+                      <span className="text-2xl font-black text-cyan-400">
+                        {tenant?.currency === 'USD' ? '$9' : '₹499'}
                       </span>
                       <span className="text-xs text-slate-400"> / month</span>
                     </div>
                     <ul className="mt-4 space-y-1.5 text-xs text-slate-300">
                       <li className="flex items-center gap-1.5">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                        Up to 15 Store Locations
+                        <Check className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                        Up to 5 Store Locations
                       </li>
                       <li className="flex items-center gap-1.5">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                        250k Monthly Txns
+                        <Check className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                        50,000 Monthly Transactions
                       </li>
                       <li className="flex items-center gap-1.5">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        <Check className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
                         Live POS Streamer Engine
                       </li>
                       <li className="flex items-center gap-1.5">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                        ERP Sync API Key
+                        <Check className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                        Margin Risk Radar
                       </li>
                       <li className="flex items-center gap-1.5">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                        10 Team Seats
+                        <Check className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                        5 Team Seats Included
                       </li>
                     </ul>
                   </div>
 
                   <button
                     type="button"
-                    disabled={(tenant?.plan_tier || 'trial') === 'pro' || saving}
-                    onClick={() => handleUpgradePlan('pro')}
-                    className="mt-5 w-full py-2 rounded-lg text-xs font-bold transition-all bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 disabled:opacity-50 text-white shadow-md"
+                    disabled={tenant?.plan_tier === 'pro' || saving}
+                    onClick={() => handleSelectPlan('pro')}
+                    className="mt-5 w-full py-2 rounded-lg text-xs font-bold transition-all bg-gradient-to-r from-cyan-600 to-brand-600 hover:from-cyan-500 hover:to-brand-500 disabled:opacity-50 text-white shadow-md"
                   >
-                    {(tenant?.plan_tier || 'trial') === 'pro' ? 'Current Package' : 'Select Pro'}
+                    {tenant?.plan_tier === 'pro' ? 'Current Package' : 'Upgrade via UPI QR (₹499)'}
                   </button>
                 </div>
 
-                {/* Business */}
+                {/* 3. Business Enterprise */}
                 <div className={`p-4 rounded-xl border flex flex-col justify-between transition-all ${
-                  (tenant?.plan_tier || 'trial') === 'business'
+                  tenant?.plan_tier === 'business'
                     ? 'bg-amber-950/40 border-amber-500 ring-1 ring-amber-500/50'
                     : 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
                 }`}>
                   <div>
-                    <div className="text-sm font-bold text-white">Business Enterprise</div>
-                    <p className="text-[11px] text-slate-400 mt-0.5">For warehouse networks & chains</p>
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm font-bold text-white">Business</div>
+                      <span className="text-[9px] font-mono text-amber-400 font-semibold">Enterprise</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-0.5">For warehouse networks & groups</p>
                     <div className="mt-3">
-                      <span className="text-xl font-extrabold text-white">
-                        {tenant?.currency === 'USD' ? '$479' : '₹39,999'}
+                      <span className="text-2xl font-black text-amber-400">
+                        {tenant?.currency === 'USD' ? '$29' : '₹1,499'}
                       </span>
                       <span className="text-xs text-slate-400"> / month</span>
                     </div>
                     <ul className="mt-4 space-y-1.5 text-xs text-slate-300">
                       <li className="flex items-center gap-1.5">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                        Unlimited Stores & Warehouses
+                        <Check className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        Unlimited Stores & DCs
                       </li>
                       <li className="flex items-center gap-1.5">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                        Unlimited Transactions
+                        <Check className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        500,000 Transactions
                       </li>
                       <li className="flex items-center gap-1.5">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                        Custom ERP Connectors (SAP/Oracle)
+                        <Check className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        ERP Sync API Key (SAP/Tally)
                       </li>
                       <li className="flex items-center gap-1.5">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        <Check className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                         Unlimited Team Seats
                       </li>
                       <li className="flex items-center gap-1.5">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                        Dedicated SLA & Account Manager
+                        <Check className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        99.99% SLA & Support
                       </li>
                     </ul>
                   </div>
 
                   <button
                     type="button"
-                    disabled={(tenant?.plan_tier || 'trial') === 'business' || saving}
-                    onClick={() => handleUpgradePlan('business')}
+                    disabled={tenant?.plan_tier === 'business' || saving}
+                    onClick={() => handleSelectPlan('business')}
                     className="mt-5 w-full py-2 rounded-lg text-xs font-bold transition-all bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white shadow-md"
                   >
-                    {(tenant?.plan_tier || 'trial') === 'business' ? 'Current Package' : 'Upgrade to Enterprise'}
+                    {tenant?.plan_tier === 'business' ? 'Current Package' : 'Upgrade via UPI QR (₹1,499)'}
                   </button>
                 </div>
               </div>
@@ -625,6 +661,19 @@ export const OrganizationSettingsModal: React.FC<OrganizationSettingsModalProps>
           )}
         </div>
       </div>
+
+      {/* UPI QR Payment Checkout Modal */}
+      <PaymentModal
+        isOpen={paymentModalOpen}
+        onClose={() => setPaymentModalOpen(false)}
+        selectedPlan={paymentModalPlan}
+        onSuccess={() => {
+          setStatusMsg({
+            type: 'success',
+            text: `Payment verified! Workspace successfully upgraded to ${paymentModalPlan.toUpperCase()}!`
+          });
+        }}
+      />
     </div>
   );
 };

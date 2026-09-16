@@ -49,7 +49,7 @@ export function AppContent() {
   // SaaS Modal states
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
   const [authModalTab, setAuthModalTab] = useState<'login' | 'register' | 'demo'>('login');
-  const [authModalPlan, setAuthModalPlan] = useState<'starter' | 'pro' | 'business'>('pro');
+  const [authModalPlan, setAuthModalPlan] = useState<'free' | 'starter' | 'pro' | 'business'>('free');
   const [importModalOpen, setImportModalOpen] = useState<boolean>(false);
   const [settingsModalOpen, setSettingsModalOpen] = useState<boolean>(false);
 
@@ -94,7 +94,7 @@ export function AppContent() {
     }, 450);
   };
 
-  const handleOpenAuth = (tab: 'login' | 'register' | 'demo' = 'login', plan: 'starter' | 'pro' | 'business' = 'pro') => {
+  const handleOpenAuth = (tab: 'login' | 'register' | 'demo' = 'login', plan: 'free' | 'starter' | 'pro' | 'business' = 'free') => {
     setAuthModalTab(tab);
     setAuthModalPlan(plan);
     setAuthModalOpen(true);

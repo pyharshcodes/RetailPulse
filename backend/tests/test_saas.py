@@ -120,43 +120,67 @@ def test_saas_register_and_login_flow():
     assert reset_resp.json()["status"] == "success"
 
 def test_saas_pricing_plans_and_tier_upgrade():
-    """Verify SaaS pricing plans catalog and tier upgrade endpoint."""
+    """Verify SaaS pricing plans catalog, free tier registration, and UPI payment verification."""
     # 1. Fetch public plans catalog
     plans_resp = client.get("/api/tenants/plans")
     assert plans_resp.status_code == 200
     plans = plans_resp.json()
     assert len(plans) == 3
     plan_ids = [p["id"] for p in plans]
-    assert "starter" in plan_ids
+    assert "free" in plan_ids
     assert "pro" in plan_ids
     assert "business" in plan_ids
 
-    # 2. Register user on Starter tier
+    # Verify free tier pricing is 0 and pro is 499
+    free_plan = next(p for p in plans if p["id"] == "free")
+    assert free_plan["pricing"]["inr_monthly"] == 0
+    pro_plan = next(p for p in plans if p["id"] == "pro")
+    assert pro_plan["pricing"]["inr_monthly"] == 499
+
+    # 2. Register user on Free tier (default)
     unique_suffix = uuid.uuid4().hex[:6]
     reg_resp = client.post("/api/auth/register", json={
         "company_name": f"Boutique {unique_suffix}",
-        "full_name": "Starter Owner",
+        "full_name": "Free Store Owner",
         "email": f"owner_{unique_suffix}@boutique.com",
         "password": "Password@123",
-        "plan_tier": "starter"
+        "plan_tier": "free"
     })
     assert reg_resp.status_code in [200, 201]
     data = reg_resp.json()
-    assert data["tenant"]["plan_tier"] == "starter"
+    assert data["tenant"]["plan_tier"] == "free"
     token = data["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
 
-    # 3. Upgrade tier to Business Enterprise
-    change_resp = client.post("/api/tenants/change-plan", json={"plan_tier": "business"}, headers=headers)
-    assert change_resp.status_code == 200
-    assert change_resp.json()["plan_tier"] == "business"
+    # 3. Direct unverified upgrade to Pro should require payment (402)
+    change_resp = client.post("/api/tenants/change-plan", json={"plan_tier": "pro"}, headers=headers)
+    assert change_resp.status_code == 402
 
-    # 4. Verify /api/auth/me reflects the updated tier
+    # 4. Verify payment with valid UPI UTR reference
+    verify_resp = client.post("/api/tenants/verify-payment", json={
+        "plan_tier": "pro",
+        "billing_cycle": "monthly",
+        "amount": 499.0,
+        "currency": "INR",
+        "utr_reference": "UPI982374182390"
+    }, headers=headers)
+    assert verify_resp.status_code == 200
+    assert verify_resp.json()["plan_tier"] == "pro"
+    assert verify_resp.json()["subscription_status"] == "active"
+    assert verify_resp.json()["last_payment_ref"] == "UPI982374182390"
+
+    # 5. Verify /api/auth/me reflects the upgraded Pro tier
     me_resp = client.get("/api/auth/me", headers=headers)
     assert me_resp.status_code == 200
-    assert me_resp.json()["tenant"]["plan_tier"] == "business"
+    assert me_resp.json()["tenant"]["plan_tier"] == "pro"
 
-    # 5. Invalid plan tier rejected
+    # 6. Downgrading / switching to Free is instant with 0 payment
+    free_switch_resp = client.post("/api/tenants/change-plan", json={"plan_tier": "free"}, headers=headers)
+    assert free_switch_resp.status_code == 200
+    assert free_switch_resp.json()["plan_tier"] == "free"
+
+    # 7. Invalid plan tier rejected
     bad_resp = client.post("/api/tenants/change-plan", json={"plan_tier": "invalid_plan"}, headers=headers)
     assert bad_resp.status_code == 400
+
 

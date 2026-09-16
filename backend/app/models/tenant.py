@@ -12,10 +12,15 @@ class Tenant(Base):
     currency: Mapped[str] = mapped_column(String(10), nullable=False, default="INR")
     currency_symbol: Mapped[str] = mapped_column(String(10), nullable=False, default="₹")
     number_format: Mapped[str] = mapped_column(String(20), nullable=False, default="indian")
-    plan_tier: Mapped[str] = mapped_column(String(30), nullable=False, default="trial")
+    plan_tier: Mapped[str] = mapped_column(String(30), nullable=False, default="free")
+    subscription_status: Mapped[str] = mapped_column(String(30), nullable=False, default="active") # active, trial, pending_payment
     trial_ends_at: Mapped[str] = mapped_column(String(30), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     api_key: Mapped[str] = mapped_column(String(100), nullable=True, index=True)
+    last_payment_ref: Mapped[str] = mapped_column(String(100), nullable=True)
+    last_payment_at: Mapped[str] = mapped_column(String(50), nullable=True)
+    last_payment_amount: Mapped[float] = mapped_column(Float, nullable=True, default=0.0)
+    upi_merchant_id: Mapped[str] = mapped_column(String(100), nullable=True, default="retailpulse@upi")
     created_at: Mapped[str] = mapped_column(String(30), nullable=True)
 
     # Relationships

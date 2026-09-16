@@ -25,7 +25,7 @@ import { ArchitectureModal } from './ArchitectureModal';
 
 interface LandingPageProps {
   onExploreDemo: () => void;
-  onOpenAuth?: (tab?: 'login' | 'register' | 'demo', plan?: 'starter' | 'pro' | 'business') => void;
+  onOpenAuth?: (tab?: 'login' | 'register' | 'demo', plan?: 'free' | 'starter' | 'pro' | 'business') => void;
 }
 
 // Ground-truth fallback dataset for immediate flicker-free telemetry render
@@ -1341,39 +1341,35 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo, onOpenA
 
         {/* 3 Package Cards Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch relative z-10">
-          {/* 1. STARTER TIER */}
-          <div className="rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 p-8 flex flex-col justify-between hover:border-white/20 transition-all hover:-translate-y-1">
+          {/* 1. FREE FOREVER TIER */}
+          <div className="rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 p-8 flex flex-col justify-between hover:border-emerald-500/30 transition-all hover:-translate-y-1">
             <div>
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
-                    ENTRY LEVEL
+                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
+                    ZERO COST
                   </span>
-                  <h3 className="text-2xl font-bold text-white mt-1">Starter</h3>
+                  <h3 className="text-2xl font-bold text-white mt-1">Free Forever</h3>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-slate-800 border border-white/10 flex items-center justify-center text-slate-300">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-300">
                   <Boxes className="w-5 h-5" />
                 </div>
               </div>
 
               <p className="text-xs sm:text-sm text-slate-400 mb-6 leading-relaxed min-h-[40px]">
-                Essential sales analytics and margin diagnostics for boutique retailers and emerging outlets.
+                Always free for boutique retail counters and small stores. Zero card required, free for your entire team.
               </p>
 
               {/* Price display */}
               <div className="mb-6 pb-6 border-b border-white/10">
                 <div className="flex items-baseline space-x-1">
                   <span className="text-4xl font-black text-white tracking-tight">
-                    {pricingCurrency === 'INR'
-                      ? (pricingBilling === 'annual' ? '₹3,999' : '₹4,999')
-                      : (pricingBilling === 'annual' ? '$49' : '$59')}
+                    {pricingCurrency === 'INR' ? '₹0' : '$0'}
                   </span>
-                  <span className="text-xs text-slate-400 font-mono">/ month</span>
+                  <span className="text-xs text-slate-400 font-mono">/ forever</span>
                 </div>
-                <div className="text-[11px] text-slate-400 mt-1 font-mono">
-                  {pricingBilling === 'annual'
-                    ? (pricingCurrency === 'INR' ? 'Billed annually at ₹47,988/yr' : 'Billed annually at $588/yr')
-                    : 'Billed monthly, cancel anytime'}
+                <div className="text-[11px] text-emerald-400 mt-1 font-mono font-semibold">
+                  100% Free • No Credit Card Required
                 </div>
               </div>
 
@@ -1381,15 +1377,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo, onOpenA
               <div className="space-y-2 mb-6 p-3 rounded-xl bg-slate-950/60 border border-white/5 text-xs font-mono">
                 <div className="flex justify-between text-slate-300">
                   <span className="text-slate-400">Max Stores:</span>
-                  <span className="font-bold text-white">Up to 3 Locations</span>
+                  <span className="font-bold text-white">1 Store Location</span>
                 </div>
                 <div className="flex justify-between text-slate-300">
                   <span className="text-slate-400">Monthly Volume:</span>
-                  <span className="font-bold text-white">25,000 Transactions</span>
+                  <span className="font-bold text-white">2,500 Transactions</span>
                 </div>
                 <div className="flex justify-between text-slate-300">
                   <span className="text-slate-400">Team Seats:</span>
-                  <span className="font-bold text-white">2 Members</span>
+                  <span className="font-bold text-white">2 Members (Free for team)</span>
                 </div>
               </div>
 
@@ -1399,15 +1395,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo, onOpenA
                   What's Included:
                 </div>
                 {[
-                  'Executive KPI Dashboard (Net Sales, GP, Margin %)',
+                  'Executive KPI Dashboard (Net Sales, Margin %)',
                   'CSV & Excel Historical Data Ingestion',
-                  'Store-level revenue & PSF ranking',
-                  'Top 20 SKU sales velocity tracker',
-                  'Daily automated data reconciliation',
-                  'Standard email support (24h turnaround)',
+                  'Store revenue & top 10 SKU tracker',
+                  'Inventory stockout health matrix',
+                  'Automated daily data reconciliation',
+                  'Community & email support',
                 ].map((feat, i) => (
                   <div key={i} className="flex items-start space-x-2.5 text-xs text-slate-300">
-                    <Check className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+                    <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                     <span>{feat}</span>
                   </div>
                 ))}
@@ -1415,10 +1411,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo, onOpenA
             </div>
 
             <button
-              onClick={() => onOpenAuth ? onOpenAuth('register', 'starter') : undefined}
-              className="w-full py-3.5 px-4 rounded-xl font-bold text-sm bg-slate-800 hover:bg-slate-700 text-white border border-white/10 hover:border-cyan-500/40 flex items-center justify-center space-x-2 transition-all shadow"
+              onClick={() => onOpenAuth ? onOpenAuth('register', 'free') : undefined}
+              className="w-full py-3.5 px-4 rounded-xl font-bold text-sm bg-slate-800 hover:bg-slate-700 text-white border border-emerald-500/30 hover:border-emerald-400 flex items-center justify-center space-x-2 transition-all shadow"
             >
-              <span>Start Starter Trial</span>
+              <span>Start Free Forever</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1428,7 +1424,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo, onOpenA
             {/* Top Recommended Tag */}
             <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan-500 to-brand-600 text-white text-[11px] font-bold uppercase tracking-wider px-3.5 py-0.5 rounded-full shadow-lg flex items-center space-x-1">
               <Zap className="w-3 h-3 fill-current" />
-              <span>MOST POPULAR • SCALING CHAINS</span>
+              <span>MOST POPULAR • BEST VALUE</span>
             </div>
 
             <div>
@@ -1438,7 +1434,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo, onOpenA
                     GROWTH ENGINE
                   </span>
                   <h3 className="text-2xl font-bold text-white mt-1 flex items-center space-x-2">
-                    <span>Pro Package</span>
+                    <span>Pro Growth</span>
                     <Sparkles className="w-4 h-4 text-cyan-400" />
                   </h3>
                 </div>
@@ -1448,7 +1444,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo, onOpenA
               </div>
 
               <p className="text-xs sm:text-sm text-slate-300 mb-6 leading-relaxed min-h-[40px]">
-                Full real-time intelligence with automated live POS streaming and margin defense for scaling retail chains.
+                Full real-time intelligence with automated live POS streaming and margin defense for scaling retail stores.
               </p>
 
               {/* Price display */}
@@ -1456,14 +1452,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo, onOpenA
                 <div className="flex items-baseline space-x-1">
                   <span className="text-4xl font-black text-white tracking-tight">
                     {pricingCurrency === 'INR'
-                      ? (pricingBilling === 'annual' ? '₹11,999' : '₹14,999')
-                      : (pricingBilling === 'annual' ? '$149' : '$179')}
+                      ? (pricingBilling === 'annual' ? '₹399' : '₹499')
+                      : (pricingBilling === 'annual' ? '$7' : '$9')}
                   </span>
                   <span className="text-xs text-slate-400 font-mono">/ month</span>
                 </div>
                 <div className="text-[11px] text-cyan-400 mt-1 font-mono font-semibold">
                   {pricingBilling === 'annual'
-                    ? (pricingCurrency === 'INR' ? 'Billed annually at ₹1,43,988/yr (Save ₹36,000)' : 'Billed annually at $1,788/yr (Save $360)')
+                    ? (pricingCurrency === 'INR' ? 'Billed annually at ₹4,788/yr (Save ₹1,200)' : 'Billed annually at $84/yr (Save $24)')
                     : 'Billed monthly, cancel anytime'}
                 </div>
               </div>
@@ -1472,31 +1468,30 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo, onOpenA
               <div className="space-y-2 mb-6 p-3 rounded-xl bg-slate-950/80 border border-cyan-500/20 text-xs font-mono">
                 <div className="flex justify-between text-slate-300">
                   <span className="text-slate-400">Max Stores:</span>
-                  <span className="font-bold text-cyan-300">Up to 15 Locations</span>
+                  <span className="font-bold text-cyan-300">Up to 5 Locations</span>
                 </div>
                 <div className="flex justify-between text-slate-300">
                   <span className="text-slate-400">Monthly Volume:</span>
-                  <span className="font-bold text-cyan-300">250,000 Transactions</span>
+                  <span className="font-bold text-cyan-300">50,000 Transactions</span>
                 </div>
                 <div className="flex justify-between text-slate-300">
                   <span className="text-slate-400">Team Seats:</span>
-                  <span className="font-bold text-cyan-300">10 Members + Roles</span>
+                  <span className="font-bold text-cyan-300">5 Members + Roles</span>
                 </div>
               </div>
 
               {/* Features List */}
               <div className="space-y-3 mb-8">
                 <div className="text-xs font-bold uppercase tracking-wider text-cyan-300 mb-2">
-                  Everything in Starter, plus:
+                  Everything in Free, plus:
                 </div>
                 {[
-                  'Live POS Streamer (1,000 events/sec throughput)',
+                  'Live POS Streamer (Real-time customer checkout feed)',
                   'Margin Risk Radar (Detect negative & below-cost sales)',
                   'Dead Inventory & Stock Aging Alerts (>90 days)',
                   'Regional Geography Heatmaps & Store Comparisons',
-                  'Dedicated API Key for POS & Custom Webhook Sync',
-                  'Customer Cohort LTV & RFM Retention Matrix',
-                  'Priority Slack & phone support (2h SLA)',
+                  'Dedicated API Key for POS & Webhook Sync',
+                  'Priority Email & WhatsApp Support',
                 ].map((feat, i) => (
                   <div key={i} className="flex items-start space-x-2.5 text-xs text-slate-200">
                     <Check className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
@@ -1510,7 +1505,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo, onOpenA
               onClick={() => onOpenAuth ? onOpenAuth('register', 'pro') : undefined}
               className="w-full py-3.5 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-cyan-500 to-brand-600 hover:from-cyan-400 hover:to-brand-500 text-white shadow-lg shadow-cyan-500/25 flex items-center justify-center space-x-2 transition-all transform active:scale-95"
             >
-              <span>Deploy Pro Package</span>
+              <span>Get Pro Plan</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1531,7 +1526,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo, onOpenA
               </div>
 
               <p className="text-xs sm:text-sm text-slate-400 mb-6 leading-relaxed min-h-[40px]">
-                Tailored for multi-brand retail groups, nationwide franchises, and omnichannel warehouse networks.
+                Tailored for multi-store retail groups, franchise networks, and omnichannel warehouse chains.
               </p>
 
               {/* Price display */}
@@ -1539,14 +1534,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo, onOpenA
                 <div className="flex items-baseline space-x-1">
                   <span className="text-4xl font-black text-white tracking-tight">
                     {pricingCurrency === 'INR'
-                      ? (pricingBilling === 'annual' ? '₹31,999' : '₹39,999')
-                      : (pricingBilling === 'annual' ? '$399' : '$479')}
+                      ? (pricingBilling === 'annual' ? '₹1,199' : '₹1,499')
+                      : (pricingBilling === 'annual' ? '$24' : '$29')}
                   </span>
                   <span className="text-xs text-slate-400 font-mono">/ month</span>
                 </div>
                 <div className="text-[11px] text-slate-400 mt-1 font-mono">
                   {pricingBilling === 'annual'
-                    ? (pricingCurrency === 'INR' ? 'Billed annually at ₹3,83,988/yr' : 'Billed annually at $4,788/yr')
+                    ? (pricingCurrency === 'INR' ? 'Billed annually at ₹14,388/yr' : 'Billed annually at $288/yr')
                     : 'Billed monthly, cancel anytime'}
                 </div>
               </div>
@@ -1559,7 +1554,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo, onOpenA
                 </div>
                 <div className="flex justify-between text-slate-300">
                   <span className="text-slate-400">Monthly Volume:</span>
-                  <span className="font-bold text-indigo-300">Unlimited Ingestion</span>
+                  <span className="font-bold text-indigo-300">500,000 Transactions</span>
                 </div>
                 <div className="flex justify-between text-slate-300">
                   <span className="text-slate-400">Team Seats:</span>
@@ -1575,10 +1570,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo, onOpenA
                 {[
                   'Multi-brand & parent conglomerate tenant isolation',
                   'Direct ERP connectors (SAP, Oracle NetSuite, Tally Prime)',
-                  'Custom predictive AI model fine-tuned on historical logs',
-                  'Single Sign-On (SAML 2.0 / Okta / Azure AD)',
-                  'Dedicated Solutions Architect & DBA support',
-                  '99.99% Enterprise Uptime SLA guarantee',
+                  'Dedicated API Key for POS & Webhook Ingestion',
+                  'High-throughput live streaming architecture',
+                  'Dedicated Account Manager & 99.99% SLA',
                   'Custom scheduled PDF / CSV data delivery pipelines',
                 ].map((feat, i) => (
                   <div key={i} className="flex items-start space-x-2.5 text-xs text-slate-300">
@@ -1593,7 +1587,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo, onOpenA
               onClick={() => onOpenAuth ? onOpenAuth('register', 'business') : undefined}
               className="w-full py-3.5 px-4 rounded-xl font-bold text-sm bg-slate-800 hover:bg-slate-700 text-white border border-indigo-500/30 hover:border-indigo-400 flex items-center justify-center space-x-2 transition-all shadow"
             >
-              <span>Select Business Enterprise</span>
+              <span>Get Business Plan</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
