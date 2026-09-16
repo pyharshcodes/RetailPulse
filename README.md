@@ -5,11 +5,12 @@
 ![RetailPulse Banner](https://img.shields.io/badge/RetailPulse-Executive_Intelligence-0284c7?style=for-the-badge)
 ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
 ![React 19](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react)
+![React Native](https://img.shields.io/badge/React_Native-Expo_52-20232A?style=for-the-badge&logo=expo)
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css)
 ![Apache ECharts](https://img.shields.io/badge/Apache_ECharts-AA344D?style=for-the-badge&logo=apache-echarts)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker)
-![Tests](https://img.shields.io/badge/Tests-17%2F17_Passed-10b981?style=for-the-badge)
+![Tests](https://img.shields.io/badge/Tests-20%2F20_Passed-10b981?style=for-the-badge)
 
 **"One command center for every store, product, customer and rupee."**
 
@@ -42,11 +43,10 @@ RetailPulse utilizes an ultra-low latency, decoupled client-server architecture 
 
 ```mermaid
 flowchart TD
-    subgraph Client["Frontend Client Tier (React 19 + TypeScript + Tailwind)"]
+    subgraph Client["Frontend & Mobile Client Tier"]
         Landing["SaaS Executive Showcase<br/>(Hero, Live Terminal, ROI Simulator)"]
-        CommandCenter["Live Command Center<br/>(Sidebar, Global Filter Bar, Omni-Search)"]
-        AttributionDrawer["Deterministic Attribution Drawer<br/>(Root-Cause Variance Breakdown)"]
-        ECharts["Apache ECharts Engine<br/>(Hardware-Accelerated Dark/Light Canvas)"]
+        CommandCenter["Web Command Center<br/>(React 19 + TypeScript + ECharts)"]
+        MobileApp["Mobile Command Center<br/>(React Native + Expo SDK 52 + Live Ticker)"]
     end
 
     subgraph API["Backend API Gateway (FastAPI + Python 3.11/3.14)"]
@@ -66,6 +66,7 @@ flowchart TD
 
     Landing --> CommandCenter
     CommandCenter --> Router
+    MobileApp --> Router
     AttributionDrawer --> Router
     Router --> AnalyticsEngine
     Router --> AttributionEngine
