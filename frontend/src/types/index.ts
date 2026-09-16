@@ -351,3 +351,23 @@ export interface SimulatedTransaction {
   timestamp: string;
 }
 
+export interface PlanPricing {
+  inr_monthly: number;
+  inr_annual: number;
+  usd_monthly: number;
+  usd_annual: number;
+}
+
+export interface PlanTierOut {
+  id: string;
+  name: string;
+  tagline: string;
+  pricing: PlanPricing;
+  is_popular: boolean;
+  badge?: string;
+  store_limit: number;
+  txn_limit: string;
+  features: string[];
+}
+
+

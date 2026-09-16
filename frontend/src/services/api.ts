@@ -14,7 +14,8 @@ import {
   TenantOut,
   AuthResponse,
   IngestionSummary,
-  SimulatedTransaction
+  SimulatedTransaction,
+  PlanTierOut
 } from '../types';
 
 const apiClient = axios.create({
@@ -216,6 +217,7 @@ export const api = {
     full_name: string;
     email: string;
     password: string;
+    plan_tier?: string;
     industry?: string;
     currency?: string;
     currency_symbol?: string;
@@ -271,6 +273,16 @@ export const api = {
     password?: string;
   }): Promise<UserOut> => {
     const res = await apiClient.post('/tenants/invite', payload);
+    return res.data;
+  },
+
+  getPlans: async (): Promise<PlanTierOut[]> => {
+    const res = await apiClient.get('/tenants/plans');
+    return res.data;
+  },
+
+  changePlan: async (plan_tier: string): Promise<TenantOut> => {
+    const res = await apiClient.post('/tenants/change-plan', { plan_tier });
     return res.data;
   },
 

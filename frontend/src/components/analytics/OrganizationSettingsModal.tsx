@@ -11,7 +11,8 @@ import {
   Shield,
   CreditCard,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Sparkles
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
@@ -27,7 +28,7 @@ export const OrganizationSettingsModal: React.FC<OrganizationSettingsModalProps>
   onClose,
 }) => {
   const { tenant, refreshTenant, isDemo } = useAuth();
-  const [activeTab, setActiveTab] = useState<'profile' | 'api' | 'team'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'api' | 'team' | 'plans'>('profile');
 
   // Form states
   const [orgName, setOrgName] = useState(tenant?.name || '');
@@ -145,6 +146,24 @@ export const OrganizationSettingsModal: React.FC<OrganizationSettingsModalProps>
     }
   };
 
+  const handleUpgradePlan = async (tier: string) => {
+    if (isDemo) {
+      alert('Plan switching is disabled in demo mode. Create an organization workspace to choose your package.');
+      return;
+    }
+    setSaving(true);
+    setStatusMsg(null);
+    try {
+      await api.changePlan(tier);
+      await refreshTenant();
+      setStatusMsg({ type: 'success', text: `Subscription successfully updated to ${tier.toUpperCase()} package!` });
+    } catch (err: any) {
+      setStatusMsg({ type: 'error', text: err.response?.data?.detail || 'Failed to update subscription.' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
       <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden text-slate-100 flex flex-col max-h-[90vh]">
@@ -157,8 +176,8 @@ export const OrganizationSettingsModal: React.FC<OrganizationSettingsModalProps>
             <div>
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
                 Workspace Settings
-                <span className="text-xs px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-300 font-medium border border-brand-500/30">
-                  {tenant?.plan_tier || 'Enterprise'}
+                <span className="text-xs px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-300 font-bold uppercase border border-brand-500/30">
+                  {tenant?.plan_tier || 'PRO'}
                 </span>
               </h2>
               <p className="text-xs text-slate-400">
@@ -198,7 +217,7 @@ export const OrganizationSettingsModal: React.FC<OrganizationSettingsModalProps>
             }`}
           >
             <Key className="w-4 h-4 text-amber-400" />
-            API & ERP Sync
+            API & ERP
           </button>
           <button
             type="button"
@@ -210,7 +229,19 @@ export const OrganizationSettingsModal: React.FC<OrganizationSettingsModalProps>
             }`}
           >
             <Users className="w-4 h-4 text-brand-400" />
-            Team Members
+            Team
+          </button>
+          <button
+            type="button"
+            onClick={() => { setActiveTab('plans'); setStatusMsg(null); }}
+            className={`flex-1 py-2 rounded-lg flex items-center justify-center gap-2 transition-all ${
+              activeTab === 'plans'
+                ? 'bg-gradient-to-r from-brand-600 to-indigo-600 text-white shadow-sm font-bold'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/40'
+            }`}
+          >
+            <Sparkles className="w-4 h-4 text-amber-300" />
+            Plans & Billing
           </button>
         </div>
 
@@ -418,6 +449,176 @@ export const OrganizationSettingsModal: React.FC<OrganizationSettingsModalProps>
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: PLANS & PACKAGES */}
+          {activeTab === 'plans' && (
+            <div className="space-y-4">
+              <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+                <div>
+                  <div className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Current Active Plan</div>
+                  <div className="text-base font-bold text-white flex items-center gap-2 mt-0.5">
+                    <span>{tenant?.plan_tier?.toUpperCase() || 'PRO'}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                      Active
+                    </span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xs text-slate-400">Workspace</div>
+                  <div className="text-xs font-semibold text-brand-400">{tenant?.name}</div>
+                </div>
+              </div>
+
+              {/* 3 Package Cards Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {/* Starter */}
+                <div className={`p-4 rounded-xl border flex flex-col justify-between transition-all ${
+                  (tenant?.plan_tier || 'trial') === 'starter'
+                    ? 'bg-slate-950 border-brand-500 ring-1 ring-brand-500/40'
+                    : 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
+                }`}>
+                  <div>
+                    <div className="text-sm font-bold text-white">Starter</div>
+                    <p className="text-[11px] text-slate-400 mt-0.5">For single stores & boutique retail</p>
+                    <div className="mt-3">
+                      <span className="text-xl font-extrabold text-white">
+                        {tenant?.currency === 'USD' ? '$59' : '₹4,999'}
+                      </span>
+                      <span className="text-xs text-slate-400"> / month</span>
+                    </div>
+                    <ul className="mt-4 space-y-1.5 text-xs text-slate-300">
+                      <li className="flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        Up to 3 Store Locations
+                      </li>
+                      <li className="flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        25k Monthly Txns
+                      </li>
+                      <li className="flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        CSV Data Ingestion
+                      </li>
+                      <li className="flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        2 Team Seats
+                      </li>
+                    </ul>
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={(tenant?.plan_tier || 'trial') === 'starter' || saving}
+                    onClick={() => handleUpgradePlan('starter')}
+                    className="mt-5 w-full py-2 rounded-lg text-xs font-bold transition-all border border-slate-700 hover:bg-slate-800 disabled:opacity-50 text-slate-200"
+                  >
+                    {(tenant?.plan_tier || 'trial') === 'starter' ? 'Current Package' : 'Switch to Starter'}
+                  </button>
+                </div>
+
+                {/* Pro */}
+                <div className={`p-4 rounded-xl border flex flex-col justify-between transition-all relative ${
+                  (tenant?.plan_tier || 'trial') === 'pro' || (tenant?.plan_tier || 'trial') === 'trial'
+                    ? 'bg-indigo-950/40 border-indigo-500 ring-1 ring-indigo-500/50'
+                    : 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
+                }`}>
+                  <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-gradient-to-r from-brand-500 to-indigo-500 text-[9px] font-bold text-white rounded-full uppercase tracking-wider shadow-sm">
+                    Most Popular
+                  </span>
+                  <div>
+                    <div className="text-sm font-bold text-white">Professional</div>
+                    <p className="text-[11px] text-slate-400 mt-0.5">For growing multi-store chains</p>
+                    <div className="mt-3">
+                      <span className="text-xl font-extrabold text-white">
+                        {tenant?.currency === 'USD' ? '$179' : '₹14,999'}
+                      </span>
+                      <span className="text-xs text-slate-400"> / month</span>
+                    </div>
+                    <ul className="mt-4 space-y-1.5 text-xs text-slate-300">
+                      <li className="flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        Up to 15 Store Locations
+                      </li>
+                      <li className="flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        250k Monthly Txns
+                      </li>
+                      <li className="flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        Live POS Streamer Engine
+                      </li>
+                      <li className="flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        ERP Sync API Key
+                      </li>
+                      <li className="flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        10 Team Seats
+                      </li>
+                    </ul>
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={(tenant?.plan_tier || 'trial') === 'pro' || saving}
+                    onClick={() => handleUpgradePlan('pro')}
+                    className="mt-5 w-full py-2 rounded-lg text-xs font-bold transition-all bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 disabled:opacity-50 text-white shadow-md"
+                  >
+                    {(tenant?.plan_tier || 'trial') === 'pro' ? 'Current Package' : 'Select Pro'}
+                  </button>
+                </div>
+
+                {/* Business */}
+                <div className={`p-4 rounded-xl border flex flex-col justify-between transition-all ${
+                  (tenant?.plan_tier || 'trial') === 'business'
+                    ? 'bg-amber-950/40 border-amber-500 ring-1 ring-amber-500/50'
+                    : 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
+                }`}>
+                  <div>
+                    <div className="text-sm font-bold text-white">Business Enterprise</div>
+                    <p className="text-[11px] text-slate-400 mt-0.5">For warehouse networks & chains</p>
+                    <div className="mt-3">
+                      <span className="text-xl font-extrabold text-white">
+                        {tenant?.currency === 'USD' ? '$479' : '₹39,999'}
+                      </span>
+                      <span className="text-xs text-slate-400"> / month</span>
+                    </div>
+                    <ul className="mt-4 space-y-1.5 text-xs text-slate-300">
+                      <li className="flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        Unlimited Stores & Warehouses
+                      </li>
+                      <li className="flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        Unlimited Transactions
+                      </li>
+                      <li className="flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        Custom ERP Connectors (SAP/Oracle)
+                      </li>
+                      <li className="flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        Unlimited Team Seats
+                      </li>
+                      <li className="flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        Dedicated SLA & Account Manager
+                      </li>
+                    </ul>
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={(tenant?.plan_tier || 'trial') === 'business' || saving}
+                    onClick={() => handleUpgradePlan('business')}
+                    className="mt-5 w-full py-2 rounded-lg text-xs font-bold transition-all bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white shadow-md"
+                  >
+                    {(tenant?.plan_tier || 'trial') === 'business' ? 'Current Package' : 'Upgrade to Enterprise'}
+                  </button>
                 </div>
               </div>
             </div>

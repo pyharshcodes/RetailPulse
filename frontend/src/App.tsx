@@ -49,6 +49,7 @@ export function AppContent() {
   // SaaS Modal states
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
   const [authModalTab, setAuthModalTab] = useState<'login' | 'register' | 'demo'>('login');
+  const [authModalPlan, setAuthModalPlan] = useState<'starter' | 'pro' | 'business'>('pro');
   const [importModalOpen, setImportModalOpen] = useState<boolean>(false);
   const [settingsModalOpen, setSettingsModalOpen] = useState<boolean>(false);
 
@@ -93,8 +94,9 @@ export function AppContent() {
     }, 450);
   };
 
-  const handleOpenAuth = (tab: 'login' | 'register' | 'demo' = 'login') => {
+  const handleOpenAuth = (tab: 'login' | 'register' | 'demo' = 'login', plan: 'starter' | 'pro' | 'business' = 'pro') => {
     setAuthModalTab(tab);
+    setAuthModalPlan(plan);
     setAuthModalOpen(true);
   };
 
@@ -123,6 +125,7 @@ export function AppContent() {
           isOpen={authModalOpen}
           onClose={() => setAuthModalOpen(false)}
           defaultTab={authModalTab}
+          defaultPlan={authModalPlan}
           onSuccess={() => setExperience('dashboard')}
         />
       </>
@@ -238,6 +241,7 @@ export function AppContent() {
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
         defaultTab={authModalTab}
+        defaultPlan={authModalPlan}
         onSuccess={() => setExperience('dashboard')}
       />
       <DataImportModal

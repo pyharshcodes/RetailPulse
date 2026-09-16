@@ -16,6 +16,7 @@ interface AuthContextType {
     full_name: string;
     email: string;
     password: string;
+    plan_tier?: string;
     industry?: string;
     currency?: string;
     currency_symbol?: string;
@@ -116,6 +117,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     full_name: string;
     email: string;
     password: string;
+    plan_tier?: string;
     industry?: string;
     currency?: string;
     currency_symbol?: string;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Building2, User, Mail, Lock, Sparkles, ArrowRight, ShieldCheck, CheckCircle2, Globe } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -6,6 +6,7 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultTab?: 'login' | 'register' | 'demo';
+  defaultPlan?: 'starter' | 'pro' | 'business';
   onSuccess?: () => void;
 }
 
@@ -13,12 +14,23 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   isOpen,
   onClose,
   defaultTab = 'login',
+  defaultPlan = 'pro',
   onSuccess,
 }) => {
   const { login, register, loginDemo, isLoading } = useAuth();
   const [tab, setTab] = useState<'login' | 'register' | 'demo'>(defaultTab);
 
   // Form states
+  const [planTier, setPlanTier] = useState<'starter' | 'pro' | 'business'>(defaultPlan);
+
+  useEffect(() => {
+    if (isOpen) {
+      setTab(defaultTab);
+      setPlanTier(defaultPlan);
+      setErrorMsg(null);
+      setSuccessMsg(null);
+    }
+  }, [isOpen, defaultTab, defaultPlan]);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [companyName, setCompanyName] = useState('');
@@ -58,6 +70,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         full_name: fullName,
         email,
         password,
+        plan_tier: planTier,
         industry,
         currency,
         currency_symbol: sym,
@@ -306,6 +319,57 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     placeholder="Create a strong password (min 6 characters)"
                     className="w-full bg-slate-950 border border-slate-700/80 rounded-xl pl-9 pr-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
                   />
+                </div>
+              </div>
+
+              {/* SaaS Package Tiers Selection */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">Select SaaS Package</label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPlanTier('starter')}
+                    className={`p-2.5 rounded-xl border text-center transition-all ${
+                      planTier === 'starter'
+                        ? 'bg-brand-950/70 border-brand-500 text-white shadow-md ring-1 ring-brand-500/50'
+                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
+                    }`}
+                  >
+                    <div className="text-xs font-bold text-white">Starter</div>
+                    <div className="text-[10px] text-cyan-400 font-mono mt-0.5">{currency === 'INR' ? '₹4,999/mo' : '$59/mo'}</div>
+                    <div className="text-[9px] text-slate-400 mt-1">Up to 3 Stores</div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPlanTier('pro')}
+                    className={`p-2.5 rounded-xl border text-center transition-all relative ${
+                      planTier === 'pro'
+                        ? 'bg-indigo-950/70 border-indigo-500 text-white shadow-md ring-1 ring-indigo-500/60'
+                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
+                    }`}
+                  >
+                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-1.5 py-0.2 bg-gradient-to-r from-brand-500 to-indigo-500 text-[8px] font-bold text-white rounded-full uppercase tracking-wider">
+                      Popular
+                    </span>
+                    <div className="text-xs font-bold text-white">Pro</div>
+                    <div className="text-[10px] text-indigo-400 font-mono mt-0.5">{currency === 'INR' ? '₹14,999/mo' : '$179/mo'}</div>
+                    <div className="text-[9px] text-slate-400 mt-1">Up to 15 Stores</div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPlanTier('business')}
+                    className={`p-2.5 rounded-xl border text-center transition-all ${
+                      planTier === 'business'
+                        ? 'bg-amber-950/70 border-amber-500 text-white shadow-md ring-1 ring-amber-500/50'
+                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
+                    }`}
+                  >
+                    <div className="text-xs font-bold text-white">Business</div>
+                    <div className="text-[10px] text-amber-400 font-mono mt-0.5">{currency === 'INR' ? '₹39,999/mo' : '$479/mo'}</div>
+                    <div className="text-[9px] text-slate-400 mt-1">Unlimited + ERP</div>
+                  </button>
                 </div>
               </div>
 

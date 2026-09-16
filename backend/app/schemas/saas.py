@@ -6,10 +6,32 @@ class UserRegisterRequest(BaseModel):
     full_name: str = Field(..., min_length=2, max_length=150)
     email: EmailStr
     password: str = Field(..., min_length=6, max_length=100)
+    plan_tier: Optional[str] = "pro"
     industry: Optional[str] = "Retail & Electronics"
     currency: Optional[str] = "INR"
     currency_symbol: Optional[str] = "₹"
     number_format: Optional[str] = "indian"
+
+class PlanPricing(BaseModel):
+    inr_monthly: int
+    inr_annual: int
+    usd_monthly: int
+    usd_annual: int
+
+class PlanTierOut(BaseModel):
+    id: str
+    name: str
+    tagline: str
+    pricing: PlanPricing
+    is_popular: bool = False
+    badge: Optional[str] = None
+    store_limit: int
+    txn_limit: str
+    features: List[str]
+
+class ChangePlanRequest(BaseModel):
+    plan_tier: str = Field(..., description="starter, pro, or business")
+
 
 class UserLoginRequest(BaseModel):
     email: EmailStr

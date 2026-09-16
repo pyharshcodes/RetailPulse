@@ -8,7 +8,15 @@ from backend.app.core.deps import get_current_tenant, get_current_user, require_
 from backend.app.core.auth import hash_password
 from backend.app.models.tenant import Tenant
 from backend.app.models.user import User
-from backend.app.schemas.saas import TenantOut, TenantUpdateRequest, TeamInviteRequest, UserOut
+from backend.app.schemas.saas import (
+    TenantOut,
+    TenantUpdateRequest,
+    TeamInviteRequest,
+    UserOut,
+    PlanTierOut,
+    PlanPricing,
+    ChangePlanRequest
+)
 
 router = APIRouter()
 
@@ -104,3 +112,101 @@ def invite_team_member(
     db.commit()
     db.refresh(new_member)
     return UserOut.model_validate(new_member)
+
+@router.get("/plans", response_model=List[PlanTierOut])
+def get_available_plans():
+    """Returns available SaaS plans, pricing in INR and USD, and feature matrices."""
+    return [
+        PlanTierOut(
+            id="starter",
+            name="Starter",
+            tagline="For single stores and emerging retail outlets.",
+            pricing=PlanPricing(
+                inr_monthly=4999,
+                inr_annual=3999,
+                usd_monthly=59,
+                usd_annual=49
+            ),
+            is_popular=False,
+            badge=None,
+            store_limit=3,
+            txn_limit="25,000 / mo",
+            features=[
+                "Up to 3 Store Locations",
+                "25,000 Monthly Transactions",
+                "Historical CSV & Excel Ingestion",
+                "Executive Sales & Margin Cockpit",
+                "Standard Inventory Stock Tracking",
+                "2 Team Seats",
+                "Standard Email Support"
+            ]
+        ),
+        PlanTierOut(
+            id="pro",
+            name="Professional",
+            tagline="For fast-growing multi-store chains & regional brands.",
+            pricing=PlanPricing(
+                inr_monthly=14999,
+                inr_annual=11999,
+                usd_monthly=179,
+                usd_annual=149
+            ),
+            is_popular=True,
+            badge="MOST POPULAR",
+            store_limit=15,
+            txn_limit="250,000 / mo",
+            features=[
+                "Up to 15 Store Locations",
+                "250,000 Monthly Transactions",
+                "Real-Time Live POS Streamer Engine",
+                "COGS Waterfall & Margin Risk Radar",
+                "Automated Stockout Alarms",
+                "REST API Key for SAP / ERP Ingestion",
+                "Executive Board PDF Reports & CSV Exports",
+                "10 Team Seats (Owner, Admin, Managers)",
+                "Priority 24/7 SLA Support"
+            ]
+        ),
+        PlanTierOut(
+            id="business",
+            name="Business Enterprise",
+            tagline="For large warehouse networks, hypermarket chains & enterprise franchises.",
+            pricing=PlanPricing(
+                inr_monthly=39999,
+                inr_annual=31999,
+                usd_monthly=479,
+                usd_annual=399
+            ),
+            is_popular=False,
+            badge="ENTERPRISE",
+            store_limit=999,
+            txn_limit="Unlimited",
+            features=[
+                "Unlimited Stores & Warehouses",
+                "Unlimited Transactions & Real-Time Ingestion",
+                "Multi-Brand & Regional Franchise Isolation",
+                "Custom ERP Connectors (SAP, Oracle, Tally)",
+                "Omni-Search & Natural Language Receipt Auditing",
+                "Store & Category Performance Quotas",
+                "Unlimited Team Seats & Granular Permissions",
+                "Dedicated Account Manager & 99.99% SLA",
+                "Custom Data Retention & On-Premises Option"
+            ]
+        )
+    ]
+
+@router.post("/change-plan", response_model=TenantOut)
+def change_tenant_plan(
+    payload: ChangePlanRequest,
+    tenant: Tenant = Depends(get_current_tenant),
+    user: User = Depends(require_role(["owner", "admin"])),
+    db: Session = Depends(get_db)
+):
+    """Switch tenant subscription tier between starter, pro, and business."""
+    if payload.plan_tier not in ["starter", "pro", "business"]:
+        raise HTTPException(status_code=400, detail="Invalid plan tier. Must be starter, pro, or business.")
+    tenant.plan_tier = payload.plan_tier
+    db.commit()
+    db.refresh(tenant)
+    return TenantOut.model_validate(tenant)
+

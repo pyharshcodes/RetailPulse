@@ -15,7 +15,8 @@ import {
   ShieldCheck,
   BarChart3,
   Layers,
-  Zap
+  Zap,
+  Check
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { formatINR, formatNumber } from '../../utils/formatters';
@@ -24,7 +25,7 @@ import { ArchitectureModal } from './ArchitectureModal';
 
 interface LandingPageProps {
   onExploreDemo: () => void;
-  onOpenAuth?: (tab?: 'login' | 'register' | 'demo') => void;
+  onOpenAuth?: (tab?: 'login' | 'register' | 'demo', plan?: 'starter' | 'pro' | 'business') => void;
 }
 
 // Ground-truth fallback dataset for immediate flicker-free telemetry render
@@ -86,6 +87,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo, onOpenA
 
   // FAQ accordion state
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+
+  // SaaS Pricing state
+  const [pricingBilling, setPricingBilling] = useState<'monthly' | 'annual'>('annual');
+  const [pricingCurrency, setPricingCurrency] = useState<'INR' | 'USD'>('INR');
 
   // Contact form submission state
   const [contactSubmitted, setContactSubmitted] = useState(false);
@@ -636,6 +641,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo, onOpenA
               <a className="vantage-nav-link" href="#preview" onClick={(e) => { e.preventDefault(); scrollToSection('preview'); }}>Telemetry</a>
               <a className="vantage-nav-link" href="#about" onClick={(e) => { e.preventDefault(); scrollToSection('about'); }}>About</a>
               <a className="vantage-nav-link" href="#services" onClick={(e) => { e.preventDefault(); scrollToSection('services'); }}>Services</a>
+              <a className="vantage-nav-link" href="#pricing" onClick={(e) => { e.preventDefault(); scrollToSection('pricing'); }}>Pricing</a>
               <a className="vantage-nav-link" href="#contact" onClick={(e) => { e.preventDefault(); scrollToSection('contact'); }}>Contact</a>
             </nav>
 
@@ -1255,6 +1261,356 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo, onOpenA
             <span>Read Vertex 20-Store Audit Case Study</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </button>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 4.5 SAAS PRICING PACKAGES (STARTER, PRO, BUSINESS)                       */}
+      {/* ========================================================================= */}
+      <section id="pricing" className="relative py-28 px-4 sm:px-6 max-w-7xl mx-auto border-t border-white/10">
+        {/* Ambient Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-96 bg-brand-500/10 blur-[140px] pointer-events-none rounded-full" />
+
+        <div className="text-center max-w-3xl mx-auto mb-14 space-y-4">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-mono font-semibold uppercase tracking-wider">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>TRANSPARENT SAAS PACKAGES</span>
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
+            Engineered for Any Retail Footprint
+          </h2>
+          <p className="text-sm sm:text-base text-slate-400 leading-relaxed">
+            From single boutique flagship stores to nationwide omnichannel chains with multi-brand inventory.
+            All tiers include automated daily reconciliation, SOC2-aligned tenant isolation, and instant data activation.
+          </p>
+
+          {/* Interactive Controls: Billing Period & Currency */}
+          <div className="pt-6 flex flex-wrap items-center justify-center gap-4">
+            {/* Billing Toggle (Monthly / Annual) */}
+            <div className="inline-flex items-center bg-slate-900/90 p-1 rounded-xl border border-white/10 shadow-inner">
+              <button
+                onClick={() => setPricingBilling('monthly')}
+                className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
+                  pricingBilling === 'monthly'
+                    ? 'bg-brand-600 text-white shadow'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Monthly Billing
+              </button>
+              <button
+                onClick={() => setPricingBilling('annual')}
+                className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center space-x-2 transition-all ${
+                  pricingBilling === 'annual'
+                    ? 'bg-brand-600 text-white shadow'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <span>Annual Billing</span>
+                <span className="bg-emerald-500/20 text-emerald-400 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">
+                  SAVE 20%
+                </span>
+              </button>
+            </div>
+
+            {/* Currency Selector (INR / USD) */}
+            <div className="inline-flex items-center bg-slate-900/90 p-1 rounded-xl border border-white/10 shadow-inner">
+              <button
+                onClick={() => setPricingCurrency('INR')}
+                className={`px-3 py-2 rounded-lg text-xs sm:text-sm font-mono font-semibold transition-all ${
+                  pricingCurrency === 'INR'
+                    ? 'bg-white/15 text-white'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                ₹ INR
+              </button>
+              <button
+                onClick={() => setPricingCurrency('USD')}
+                className={`px-3 py-2 rounded-lg text-xs sm:text-sm font-mono font-semibold transition-all ${
+                  pricingCurrency === 'USD'
+                    ? 'bg-white/15 text-white'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                $ USD
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* 3 Package Cards Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch relative z-10">
+          {/* 1. STARTER TIER */}
+          <div className="rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 p-8 flex flex-col justify-between hover:border-white/20 transition-all hover:-translate-y-1">
+            <div>
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
+                    ENTRY LEVEL
+                  </span>
+                  <h3 className="text-2xl font-bold text-white mt-1">Starter</h3>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-slate-800 border border-white/10 flex items-center justify-center text-slate-300">
+                  <Boxes className="w-5 h-5" />
+                </div>
+              </div>
+
+              <p className="text-xs sm:text-sm text-slate-400 mb-6 leading-relaxed min-h-[40px]">
+                Essential sales analytics and margin diagnostics for boutique retailers and emerging outlets.
+              </p>
+
+              {/* Price display */}
+              <div className="mb-6 pb-6 border-b border-white/10">
+                <div className="flex items-baseline space-x-1">
+                  <span className="text-4xl font-black text-white tracking-tight">
+                    {pricingCurrency === 'INR'
+                      ? (pricingBilling === 'annual' ? '₹3,999' : '₹4,999')
+                      : (pricingBilling === 'annual' ? '$49' : '$59')}
+                  </span>
+                  <span className="text-xs text-slate-400 font-mono">/ month</span>
+                </div>
+                <div className="text-[11px] text-slate-400 mt-1 font-mono">
+                  {pricingBilling === 'annual'
+                    ? (pricingCurrency === 'INR' ? 'Billed annually at ₹47,988/yr' : 'Billed annually at $588/yr')
+                    : 'Billed monthly, cancel anytime'}
+                </div>
+              </div>
+
+              {/* Key Limits */}
+              <div className="space-y-2 mb-6 p-3 rounded-xl bg-slate-950/60 border border-white/5 text-xs font-mono">
+                <div className="flex justify-between text-slate-300">
+                  <span className="text-slate-400">Max Stores:</span>
+                  <span className="font-bold text-white">Up to 3 Locations</span>
+                </div>
+                <div className="flex justify-between text-slate-300">
+                  <span className="text-slate-400">Monthly Volume:</span>
+                  <span className="font-bold text-white">25,000 Transactions</span>
+                </div>
+                <div className="flex justify-between text-slate-300">
+                  <span className="text-slate-400">Team Seats:</span>
+                  <span className="font-bold text-white">2 Members</span>
+                </div>
+              </div>
+
+              {/* Features List */}
+              <div className="space-y-3 mb-8">
+                <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                  What's Included:
+                </div>
+                {[
+                  'Executive KPI Dashboard (Net Sales, GP, Margin %)',
+                  'CSV & Excel Historical Data Ingestion',
+                  'Store-level revenue & PSF ranking',
+                  'Top 20 SKU sales velocity tracker',
+                  'Daily automated data reconciliation',
+                  'Standard email support (24h turnaround)',
+                ].map((feat, i) => (
+                  <div key={i} className="flex items-start space-x-2.5 text-xs text-slate-300">
+                    <Check className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+                    <span>{feat}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <button
+              onClick={() => onOpenAuth ? onOpenAuth('register', 'starter') : undefined}
+              className="w-full py-3.5 px-4 rounded-xl font-bold text-sm bg-slate-800 hover:bg-slate-700 text-white border border-white/10 hover:border-cyan-500/40 flex items-center justify-center space-x-2 transition-all shadow"
+            >
+              <span>Start Starter Trial</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* 2. PRO TIER (POPULAR / HIGHLIGHTED) */}
+          <div className="rounded-2xl bg-gradient-to-b from-brand-950/70 via-slate-900/90 to-slate-900/90 backdrop-blur-xl border-2 border-cyan-500/50 p-8 flex flex-col justify-between relative shadow-2xl shadow-cyan-500/10 hover:-translate-y-1 transition-all">
+            {/* Top Recommended Tag */}
+            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan-500 to-brand-600 text-white text-[11px] font-bold uppercase tracking-wider px-3.5 py-0.5 rounded-full shadow-lg flex items-center space-x-1">
+              <Zap className="w-3 h-3 fill-current" />
+              <span>MOST POPULAR • SCALING CHAINS</span>
+            </div>
+
+            <div>
+              <div className="flex justify-between items-start mb-4 mt-1">
+                <div>
+                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-cyan-400">
+                    GROWTH ENGINE
+                  </span>
+                  <h3 className="text-2xl font-bold text-white mt-1 flex items-center space-x-2">
+                    <span>Pro Package</span>
+                    <Sparkles className="w-4 h-4 text-cyan-400" />
+                  </h3>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-300">
+                  <Zap className="w-5 h-5 text-cyan-400" />
+                </div>
+              </div>
+
+              <p className="text-xs sm:text-sm text-slate-300 mb-6 leading-relaxed min-h-[40px]">
+                Full real-time intelligence with automated live POS streaming and margin defense for scaling retail chains.
+              </p>
+
+              {/* Price display */}
+              <div className="mb-6 pb-6 border-b border-white/10">
+                <div className="flex items-baseline space-x-1">
+                  <span className="text-4xl font-black text-white tracking-tight">
+                    {pricingCurrency === 'INR'
+                      ? (pricingBilling === 'annual' ? '₹11,999' : '₹14,999')
+                      : (pricingBilling === 'annual' ? '$149' : '$179')}
+                  </span>
+                  <span className="text-xs text-slate-400 font-mono">/ month</span>
+                </div>
+                <div className="text-[11px] text-cyan-400 mt-1 font-mono font-semibold">
+                  {pricingBilling === 'annual'
+                    ? (pricingCurrency === 'INR' ? 'Billed annually at ₹1,43,988/yr (Save ₹36,000)' : 'Billed annually at $1,788/yr (Save $360)')
+                    : 'Billed monthly, cancel anytime'}
+                </div>
+              </div>
+
+              {/* Key Limits */}
+              <div className="space-y-2 mb-6 p-3 rounded-xl bg-slate-950/80 border border-cyan-500/20 text-xs font-mono">
+                <div className="flex justify-between text-slate-300">
+                  <span className="text-slate-400">Max Stores:</span>
+                  <span className="font-bold text-cyan-300">Up to 15 Locations</span>
+                </div>
+                <div className="flex justify-between text-slate-300">
+                  <span className="text-slate-400">Monthly Volume:</span>
+                  <span className="font-bold text-cyan-300">250,000 Transactions</span>
+                </div>
+                <div className="flex justify-between text-slate-300">
+                  <span className="text-slate-400">Team Seats:</span>
+                  <span className="font-bold text-cyan-300">10 Members + Roles</span>
+                </div>
+              </div>
+
+              {/* Features List */}
+              <div className="space-y-3 mb-8">
+                <div className="text-xs font-bold uppercase tracking-wider text-cyan-300 mb-2">
+                  Everything in Starter, plus:
+                </div>
+                {[
+                  'Live POS Streamer (1,000 events/sec throughput)',
+                  'Margin Risk Radar (Detect negative & below-cost sales)',
+                  'Dead Inventory & Stock Aging Alerts (>90 days)',
+                  'Regional Geography Heatmaps & Store Comparisons',
+                  'Dedicated API Key for POS & Custom Webhook Sync',
+                  'Customer Cohort LTV & RFM Retention Matrix',
+                  'Priority Slack & phone support (2h SLA)',
+                ].map((feat, i) => (
+                  <div key={i} className="flex items-start space-x-2.5 text-xs text-slate-200">
+                    <Check className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+                    <span className="font-medium">{feat}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <button
+              onClick={() => onOpenAuth ? onOpenAuth('register', 'pro') : undefined}
+              className="w-full py-3.5 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-cyan-500 to-brand-600 hover:from-cyan-400 hover:to-brand-500 text-white shadow-lg shadow-cyan-500/25 flex items-center justify-center space-x-2 transition-all transform active:scale-95"
+            >
+              <span>Deploy Pro Package</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* 3. BUSINESS / ENTERPRISE TIER */}
+          <div className="rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 p-8 flex flex-col justify-between hover:border-white/20 transition-all hover:-translate-y-1">
+            <div>
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-indigo-400">
+                    ENTERPRISE GRADE
+                  </span>
+                  <h3 className="text-2xl font-bold text-white mt-1">Business</h3>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-300">
+                  <Building className="w-5 h-5" />
+                </div>
+              </div>
+
+              <p className="text-xs sm:text-sm text-slate-400 mb-6 leading-relaxed min-h-[40px]">
+                Tailored for multi-brand retail groups, nationwide franchises, and omnichannel warehouse networks.
+              </p>
+
+              {/* Price display */}
+              <div className="mb-6 pb-6 border-b border-white/10">
+                <div className="flex items-baseline space-x-1">
+                  <span className="text-4xl font-black text-white tracking-tight">
+                    {pricingCurrency === 'INR'
+                      ? (pricingBilling === 'annual' ? '₹31,999' : '₹39,999')
+                      : (pricingBilling === 'annual' ? '$399' : '$479')}
+                  </span>
+                  <span className="text-xs text-slate-400 font-mono">/ month</span>
+                </div>
+                <div className="text-[11px] text-slate-400 mt-1 font-mono">
+                  {pricingBilling === 'annual'
+                    ? (pricingCurrency === 'INR' ? 'Billed annually at ₹3,83,988/yr' : 'Billed annually at $4,788/yr')
+                    : 'Billed monthly, cancel anytime'}
+                </div>
+              </div>
+
+              {/* Key Limits */}
+              <div className="space-y-2 mb-6 p-3 rounded-xl bg-slate-950/60 border border-white/5 text-xs font-mono">
+                <div className="flex justify-between text-slate-300">
+                  <span className="text-slate-400">Max Stores:</span>
+                  <span className="font-bold text-indigo-300">Unlimited Stores & DCs</span>
+                </div>
+                <div className="flex justify-between text-slate-300">
+                  <span className="text-slate-400">Monthly Volume:</span>
+                  <span className="font-bold text-indigo-300">Unlimited Ingestion</span>
+                </div>
+                <div className="flex justify-between text-slate-300">
+                  <span className="text-slate-400">Team Seats:</span>
+                  <span className="font-bold text-indigo-300">Unlimited Users & Roles</span>
+                </div>
+              </div>
+
+              {/* Features List */}
+              <div className="space-y-3 mb-8">
+                <div className="text-xs font-bold uppercase tracking-wider text-indigo-300 mb-2">
+                  Everything in Pro, plus:
+                </div>
+                {[
+                  'Multi-brand & parent conglomerate tenant isolation',
+                  'Direct ERP connectors (SAP, Oracle NetSuite, Tally Prime)',
+                  'Custom predictive AI model fine-tuned on historical logs',
+                  'Single Sign-On (SAML 2.0 / Okta / Azure AD)',
+                  'Dedicated Solutions Architect & DBA support',
+                  '99.99% Enterprise Uptime SLA guarantee',
+                  'Custom scheduled PDF / CSV data delivery pipelines',
+                ].map((feat, i) => (
+                  <div key={i} className="flex items-start space-x-2.5 text-xs text-slate-300">
+                    <Check className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
+                    <span>{feat}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <button
+              onClick={() => onOpenAuth ? onOpenAuth('register', 'business') : undefined}
+              className="w-full py-3.5 px-4 rounded-xl font-bold text-sm bg-slate-800 hover:bg-slate-700 text-white border border-indigo-500/30 hover:border-indigo-400 flex items-center justify-center space-x-2 transition-all shadow"
+            >
+              <span>Select Business Enterprise</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Reassurance Footer */}
+        <div className="mt-14 max-w-2xl mx-auto text-center border-t border-white/5 pt-8">
+          <div className="flex items-center justify-center space-x-6 text-xs text-slate-400 font-mono">
+            <span className="flex items-center space-x-1.5">
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span>14-Day Full Sandbox Trial</span>
+            </span>
+            <span>•</span>
+            <span>No Credit Card Required</span>
+            <span>•</span>
+            <span>Instant Provisioning</span>
+          </div>
         </div>
       </section>
 

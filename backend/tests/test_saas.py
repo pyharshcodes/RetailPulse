@@ -118,3 +118,45 @@ def test_saas_register_and_login_flow():
     reset_resp = client.delete("/api/onboarding/reset-tenant-data", headers=headers)
     assert reset_resp.status_code == 200
     assert reset_resp.json()["status"] == "success"
+
+def test_saas_pricing_plans_and_tier_upgrade():
+    """Verify SaaS pricing plans catalog and tier upgrade endpoint."""
+    # 1. Fetch public plans catalog
+    plans_resp = client.get("/api/tenants/plans")
+    assert plans_resp.status_code == 200
+    plans = plans_resp.json()
+    assert len(plans) == 3
+    plan_ids = [p["id"] for p in plans]
+    assert "starter" in plan_ids
+    assert "pro" in plan_ids
+    assert "business" in plan_ids
+
+    # 2. Register user on Starter tier
+    unique_suffix = uuid.uuid4().hex[:6]
+    reg_resp = client.post("/api/auth/register", json={
+        "company_name": f"Boutique {unique_suffix}",
+        "full_name": "Starter Owner",
+        "email": f"owner_{unique_suffix}@boutique.com",
+        "password": "Password@123",
+        "plan_tier": "starter"
+    })
+    assert reg_resp.status_code in [200, 201]
+    data = reg_resp.json()
+    assert data["tenant"]["plan_tier"] == "starter"
+    token = data["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # 3. Upgrade tier to Business Enterprise
+    change_resp = client.post("/api/tenants/change-plan", json={"plan_tier": "business"}, headers=headers)
+    assert change_resp.status_code == 200
+    assert change_resp.json()["plan_tier"] == "business"
+
+    # 4. Verify /api/auth/me reflects the updated tier
+    me_resp = client.get("/api/auth/me", headers=headers)
+    assert me_resp.status_code == 200
+    assert me_resp.json()["tenant"]["plan_tier"] == "business"
+
+    # 5. Invalid plan tier rejected
+    bad_resp = client.post("/api/tenants/change-plan", json={"plan_tier": "invalid_plan"}, headers=headers)
+    assert bad_resp.status_code == 400
+
