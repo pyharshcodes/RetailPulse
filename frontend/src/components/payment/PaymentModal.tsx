@@ -120,10 +120,11 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       : `$${payableAmount}`;
 
   // UPI merchant receiver
-  const upiId = tenant?.upi_merchant_id || 'retailpulse@upi';
+  const upiId = 'harshdeepchak97-1@oksbi';
+  const payeeName = 'Harsh deep Chak';
   const upiNote = `RetailPulse ${planInfo.name} ${billingCycle}`;
-  const upiUri = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent('RetailPulse SaaS')}&am=${payableAmount}&cu=INR&tn=${encodeURIComponent(upiNote)}`;
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=12&data=${encodeURIComponent(upiUri)}`;
+  const upiUri = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(payeeName)}&am=${payableAmount}&cu=INR&tn=${encodeURIComponent(upiNote)}`;
+  const qrCodeUrl = `/assets/payment-qr.jpg`;
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
@@ -133,11 +134,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     navigator.clipboard.writeText(upiId);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleSimulateTestPayment = () => {
-    const randomUtr = `UPI${Math.floor(100000000000 + Math.random() * 900000000000)}`;
-    setUtrRef(randomUtr);
   };
 
   const handleVerifyPayment = async (e: React.FormEvent) => {
@@ -296,20 +292,21 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 <div className="flex-1 space-y-3.5 text-center sm:text-left">
                   <div className="flex items-center justify-center sm:justify-start space-x-1.5 text-xs font-bold text-slate-200">
                     <Smartphone className="w-4 h-4 text-cyan-400" />
-                    <span>Scan with any UPI App</span>
-                  </div>
-                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 text-[11px] text-slate-400 font-mono">
-                    <span className="px-2 py-0.5 rounded bg-slate-900 border border-white/10">Google Pay</span>
-                    <span className="px-2 py-0.5 rounded bg-slate-900 border border-white/10">PhonePe</span>
-                    <span className="px-2 py-0.5 rounded bg-slate-900 border border-white/10">Paytm</span>
-                    <span className="px-2 py-0.5 rounded bg-slate-900 border border-white/10">BHIM</span>
+                    <span>Scan with Google Pay, PhonePe, Paytm or BHIM</span>
                   </div>
 
-                  {/* Copyable UPI ID Box */}
-                  <div className="space-y-1">
-                    <div className="text-[11px] text-slate-400">Merchant UPI VPA:</div>
+                  {/* Merchant Details Box */}
+                  <div className="space-y-1.5 p-3 rounded-xl bg-slate-900 border border-slate-800">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-slate-400">Verified Payee:</span>
+                      <span className="font-semibold text-emerald-400 flex items-center gap-1">
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                        Harsh deep Chak
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-slate-400">Official UPI ID:</div>
                     <div className="flex items-center gap-2">
-                      <div className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 font-mono text-xs text-white truncate select-all">
+                      <div className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 font-mono text-xs text-white truncate select-all">
                         {upiId}
                       </div>
                       <button
@@ -325,7 +322,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   </div>
 
                   <div className="text-[11px] text-slate-400 leading-tight">
-                    Instant activation once payment is completed. All existing team members automatically inherit access.
+                    Pay <strong className="text-cyan-400">{formattedAmount}</strong> and submit the 12-digit Bank UTR below. Access unlocks immediately.
                   </div>
                 </div>
               </div>
@@ -335,16 +332,11 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="block text-xs font-semibold text-slate-300">
-                      Enter UPI UTR / Transaction ID (12 Digits)
+                      Enter UPI UTR / Bank Reference Number (12 Digits)
                     </label>
-                    <button
-                      type="button"
-                      onClick={handleSimulateTestPayment}
-                      className="text-[11px] font-mono text-cyan-400 hover:underline flex items-center space-x-1"
-                    >
-                      <Sparkles className="w-3 h-3" />
-                      <span>Auto-fill Demo UTR</span>
-                    </button>
+                    <span className="text-[10px] font-mono text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/30">
+                      Instant Verification
+                    </span>
                   </div>
                   <input
                     type="text"
@@ -355,7 +347,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     className="w-full bg-slate-950 border border-slate-700 focus:border-cyan-500 rounded-xl px-3.5 py-2.5 font-mono text-sm text-white placeholder-slate-500 focus:outline-none transition-colors"
                   />
                   <p className="text-[11px] text-slate-500 mt-1">
-                    Found in your UPI app payment receipt details (e.g. 12-digit numeric Bank Reference number).
+                    Check your UPI app (GPay / PhonePe / Paytm) transaction details for the 12-digit UTR / UPI Ref ID.
                   </p>
                 </div>
 

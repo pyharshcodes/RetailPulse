@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   ScrollView,
   Platform,
+  Image,
 } from 'react-native';
 import {
   X,
@@ -63,7 +64,8 @@ export const PaymentModal: React.FC = () => {
   const seconds = timeLeft % 60;
   const timeFormatted = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-  const upiId = 'retailpulse@upi';
+  const upiId = 'harshdeepchak97-1@oksbi';
+  const payeeName = 'Harsh deep Chak';
   const price = targetUpgradePlan.price_monthly;
 
   const handleCopyUpi = () => {
@@ -156,50 +158,27 @@ export const PaymentModal: React.FC = () => {
                 {/* QR Code Graphic Container */}
                 <View style={styles.qrContainer}>
                   <View style={styles.qrFrame}>
-                    {/* Visual Stylized High-Tech QR Code SVG */}
-                    <Svg width="160" height="160" viewBox="0 0 160 160">
-                      {/* Corner Finder 1 */}
-                      <Rect x="10" y="10" width="40" height="40" rx="6" fill="#06b6d4" />
-                      <Rect x="18" y="18" width="24" height="24" rx="4" fill="#02040a" />
-                      <Rect x="24" y="24" width="12" height="12" rx="2" fill="#06b6d4" />
-
-                      {/* Corner Finder 2 */}
-                      <Rect x="110" y="10" width="40" height="40" rx="6" fill="#06b6d4" />
-                      <Rect x="118" y="18" width="24" height="24" rx="4" fill="#02040a" />
-                      <Rect x="124" y="24" width="12" height="12" rx="2" fill="#06b6d4" />
-
-                      {/* Corner Finder 3 */}
-                      <Rect x="10" y="110" width="40" height="40" rx="6" fill="#06b6d4" />
-                      <Rect x="18" y="118" width="24" height="24" rx="4" fill="#02040a" />
-                      <Rect x="24" y="124" width="12" height="12" rx="2" fill="#06b6d4" />
-
-                      {/* Data Pattern Grid */}
-                      <Rect x="60" y="15" width="10" height="10" fill="#38bdf8" />
-                      <Rect x="75" y="25" width="15" height="10" fill="#38bdf8" />
-                      <Rect x="95" y="15" width="8" height="8" fill="#38bdf8" />
-                      <Rect x="15" y="60" width="12" height="12" fill="#38bdf8" />
-                      <Rect x="35" y="70" width="10" height="10" fill="#38bdf8" />
-                      <Rect x="115" y="60" width="14" height="8" fill="#38bdf8" />
-                      <Rect x="135" y="75" width="15" height="15" fill="#38bdf8" />
-
-                      {/* Center Hub */}
-                      <Rect x="60" y="60" width="40" height="40" rx="8" fill="#0b0f19" stroke="#06b6d4" strokeWidth="2" />
-                      <Rect x="72" y="72" width="16" height="16" rx="4" fill="#06b6d4" />
-
-                      {/* Bottom Pattern */}
-                      <Rect x="60" y="115" width="12" height="25" fill="#38bdf8" />
-                      <Rect x="80" y="120" width="20" height="10" fill="#38bdf8" />
-                      <Rect x="110" y="115" width="15" height="15" fill="#38bdf8" />
-                      <Rect x="130" y="125" width="20" height="20" fill="#38bdf8" />
-                    </Svg>
+                    <Image
+                      source={require('../../assets/payment-qr.jpg')}
+                      style={styles.qrImage}
+                      resizeMode="contain"
+                    />
                   </View>
                   <Text style={styles.qrHelperText}>Scan via GPay / PhonePe / Paytm / BHIM</Text>
+                </View>
+
+                {/* Verified Merchant Details */}
+                <View style={styles.merchantBox}>
+                  <ShieldCheck color={colors.success} size={14} />
+                  <Text style={styles.merchantLabel}>
+                    Verified Payee: <Text style={styles.merchantName}>{payeeName}</Text>
+                  </Text>
                 </View>
 
                 {/* Copyable UPI Box */}
                 <View style={styles.upiBox}>
                   <View>
-                    <Text style={styles.upiLabel}>Official Merchant VPA</Text>
+                    <Text style={styles.upiLabel}>Official UPI ID</Text>
                     <Text style={styles.upiIdText}>{upiId}</Text>
                   </View>
                   <TouchableOpacity
@@ -371,11 +350,39 @@ const styles = StyleSheet.create({
     marginVertical: 6,
   },
   qrFrame: {
-    backgroundColor: '#02040a',
-    padding: 16,
+    backgroundColor: '#ffffff',
+    padding: 8,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: colors.surfaceBorder,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  qrImage: {
+    width: 190,
+    height: 190,
+    borderRadius: 10,
+  },
+  merchantBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(16, 185, 129, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.25)',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginVertical: 6,
+  },
+  merchantLabel: {
+    color: colors.textSecondary,
+    fontSize: 11,
+  },
+  merchantName: {
+    color: colors.success,
+    fontWeight: '800',
   },
   qrHelperText: {
     color: colors.textMuted,

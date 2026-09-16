@@ -54,7 +54,7 @@ const DEFAULT_TENANT: Tenant = {
   tier: 'pro',
   subscription_status: 'active',
   created_at: new Date().toISOString(),
-  upi_merchant_id: 'retailpulse@upi',
+  upi_merchant_id: 'harshdeepchak97-1@oksbi',
   last_payment_ref: 'UPI/UTR/849204821',
   last_payment_amount: 499,
 };

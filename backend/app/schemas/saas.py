@@ -71,7 +71,7 @@ class TenantOut(BaseModel):
     last_payment_ref: Optional[str] = None
     last_payment_at: Optional[str] = None
     last_payment_amount: Optional[float] = 0.0
-    upi_merchant_id: Optional[str] = "retailpulse@upi"
+    upi_merchant_id: Optional[str] = "harshdeepchak97-1@oksbi"
     api_key: Optional[str] = None
     is_active: bool
 

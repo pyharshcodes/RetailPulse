@@ -20,7 +20,7 @@ class Tenant(Base):
     last_payment_ref: Mapped[str] = mapped_column(String(100), nullable=True)
     last_payment_at: Mapped[str] = mapped_column(String(50), nullable=True)
     last_payment_amount: Mapped[float] = mapped_column(Float, nullable=True, default=0.0)
-    upi_merchant_id: Mapped[str] = mapped_column(String(100), nullable=True, default="retailpulse@upi")
+    upi_merchant_id: Mapped[str] = mapped_column(String(100), nullable=True, default="harshdeepchak97-1@oksbi")
     created_at: Mapped[str] = mapped_column(String(30), nullable=True)
 
     # Relationships
