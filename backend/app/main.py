@@ -68,8 +68,18 @@ async def global_exception_handler(request: Request, exc: Exception):
         }
     )
 
+# Startup event: ensure SaaS tables, default demo tenant, and indexes exist
+@app.on_event("startup")
+def startup_event():
+    from backend.app.core.setup_saas_db import setup_saas_database
+    try:
+        setup_saas_database()
+    except Exception as e:
+        print(f"Warning during setup_saas_database: {e}")
+
 # Mount central API router
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
 
 @app.get("/health", tags=["Health"])
 def health_check():

@@ -6,6 +6,7 @@ class Store(Base):
     __tablename__ = "stores"
 
     store_id: Mapped[str] = mapped_column(String(50), primary_key=True, index=True)
+    tenant_id: Mapped[str] = mapped_column(String(50), nullable=False, default="demo_tenant", index=True)
     store_name: Mapped[str] = mapped_column(String(100), nullable=False)
     city: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
     state: Mapped[str] = mapped_column(String(50), nullable=False, index=True)

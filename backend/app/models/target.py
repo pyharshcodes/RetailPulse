@@ -6,6 +6,7 @@ class Target(Base):
     __tablename__ = "targets"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    tenant_id: Mapped[str] = mapped_column(String(50), nullable=False, default="demo_tenant", index=True)
     month: Mapped[str] = mapped_column(String(7), nullable=False, index=True) # "YYYY-MM"
     store_id: Mapped[str] = mapped_column(String(50), ForeignKey("stores.store_id"), nullable=False, index=True)
     category: Mapped[str] = mapped_column(String(50), nullable=False, index=True)

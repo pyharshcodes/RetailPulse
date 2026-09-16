@@ -6,6 +6,7 @@ class Inventory(Base):
     __tablename__ = "inventory"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    tenant_id: Mapped[str] = mapped_column(String(50), nullable=False, default="demo_tenant", index=True)
     store_id: Mapped[str] = mapped_column(String(50), ForeignKey("stores.store_id"), nullable=False, index=True)
     product_id: Mapped[str] = mapped_column(String(50), ForeignKey("products.product_id"), nullable=False, index=True)
     

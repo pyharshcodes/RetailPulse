@@ -19,11 +19,11 @@ router = APIRouter(prefix="/demo", tags=["Demo & System"])
 @router.get("/status")
 def get_demo_status(db: Session = Depends(get_db)):
     """Returns dataset load status and entity counts for the live demo experience."""
-    txns = db.query(func.count(Transaction.id)).scalar() or 0
-    stores = db.query(func.count(Store.store_id)).scalar() or 0
-    products = db.query(func.count(Product.product_id)).scalar() or 0
-    customers = db.query(func.count(Customer.customer_id)).scalar() or 0
-    inventory = db.query(func.count(Inventory.id)).scalar() or 0
+    txns = db.query(func.count(Transaction.id)).filter(Transaction.tenant_id == "demo_tenant").scalar() or 0
+    stores = db.query(func.count(Store.store_id)).filter(Store.tenant_id == "demo_tenant").scalar() or 0
+    products = db.query(func.count(Product.product_id)).filter(Product.tenant_id == "demo_tenant").scalar() or 0
+    customers = db.query(func.count(Customer.customer_id)).filter(Customer.tenant_id == "demo_tenant").scalar() or 0
+    inventory = db.query(func.count(Inventory.id)).filter(Inventory.tenant_id == "demo_tenant").scalar() or 0
 
     return {
         "status": "ready",
@@ -43,16 +43,16 @@ def get_demo_status(db: Session = Depends(get_db)):
 @router.get("/filter-options")
 def get_filter_options(db: Session = Depends(get_db)):
     """Returns unique distinct lists for populating global filter dropdowns."""
-    regions = [r[0] for r in db.query(Transaction.region).distinct().order_by(Transaction.region).all()]
-    states = [s[0] for s in db.query(Transaction.state).distinct().order_by(Transaction.state).all()]
+    regions = [r[0] for r in db.query(Transaction.region).filter(Transaction.tenant_id == "demo_tenant").distinct().order_by(Transaction.region).all()]
+    states = [s[0] for s in db.query(Transaction.state).filter(Transaction.tenant_id == "demo_tenant").distinct().order_by(Transaction.state).all()]
     
-    stores_q = db.query(Store.store_id, Store.store_name, Store.region, Store.city).order_by(Store.store_name).all()
+    stores_q = db.query(Store.store_id, Store.store_name, Store.region, Store.city).filter(Store.tenant_id == "demo_tenant").order_by(Store.store_name).all()
     stores = [{"store_id": s.store_id, "store_name": s.store_name, "region": s.region, "city": s.city} for s in stores_q]
     
-    categories = [c[0] for c in db.query(Transaction.category).distinct().order_by(Transaction.category).all()]
-    subcategories = [s[0] for s in db.query(Transaction.subcategory).distinct().order_by(Transaction.subcategory).all()]
-    customer_types = [ct[0] for ct in db.query(Transaction.customer_type).distinct().order_by(Transaction.customer_type).all()]
-    sales_channels = [sc[0] for sc in db.query(Transaction.sales_channel).distinct().order_by(Transaction.sales_channel).all()]
+    categories = [c[0] for c in db.query(Transaction.category).filter(Transaction.tenant_id == "demo_tenant").distinct().order_by(Transaction.category).all()]
+    subcategories = [s[0] for s in db.query(Transaction.subcategory).filter(Transaction.tenant_id == "demo_tenant").distinct().order_by(Transaction.subcategory).all()]
+    customer_types = [ct[0] for ct in db.query(Transaction.customer_type).filter(Transaction.tenant_id == "demo_tenant").distinct().order_by(Transaction.customer_type).all()]
+    sales_channels = [sc[0] for sc in db.query(Transaction.sales_channel).filter(Transaction.tenant_id == "demo_tenant").distinct().order_by(Transaction.sales_channel).all()]
 
     return {
         "regions": regions,

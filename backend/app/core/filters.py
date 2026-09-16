@@ -6,14 +6,17 @@ Provides period comparison window calculations.
 
 from datetime import datetime, timedelta
 from typing import Optional, Tuple
-from fastapi import Query
+from fastapi import Query, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Query as SQLQuery
 from backend.app.models.transaction import Transaction
+from backend.app.core.deps import get_current_tenant
+from backend.app.models.tenant import Tenant
 
 class FilterParams(BaseModel):
     start_date: Optional[str] = "2026-01-01"
     end_date: Optional[str] = "2026-12-31"
+    tenant_id: Optional[str] = "demo_tenant"
     region: Optional[str] = None
     state: Optional[str] = None
     store_id: Optional[str] = None
@@ -21,6 +24,7 @@ class FilterParams(BaseModel):
     subcategory: Optional[str] = None
     customer_type: Optional[str] = None
     sales_channel: Optional[str] = None
+
 
 def get_filter_params(
     start_date: Optional[str] = Query("2026-01-01", description="Start date YYYY-MM-DD"),
@@ -32,10 +36,12 @@ def get_filter_params(
     subcategory: Optional[str] = Query(None, description="Subcategory filter"),
     customer_type: Optional[str] = Query(None, description="Customer Type filter"),
     sales_channel: Optional[str] = Query(None, description="Sales Channel filter"),
+    tenant: Tenant = Depends(get_current_tenant),
 ) -> FilterParams:
     return FilterParams(
         start_date=start_date,
         end_date=end_date,
+        tenant_id=tenant.id if tenant else "demo_tenant",
         region=region,
         state=state,
         store_id=store,
@@ -47,6 +53,9 @@ def get_filter_params(
 
 def apply_transaction_filters(query: SQLQuery, filters: FilterParams, date_override: Optional[Tuple[str, str]] = None) -> SQLQuery:
     """Applies dimensional filters to any Transaction query."""
+    if getattr(filters, "tenant_id", None):
+        query = query.filter(Transaction.tenant_id == filters.tenant_id)
+
     start = date_override[0] if date_override else filters.start_date
     end = date_override[1] if date_override else filters.end_date
 

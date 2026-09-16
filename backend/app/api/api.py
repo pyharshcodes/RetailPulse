@@ -19,9 +19,16 @@ from backend.app.api.routes import (
     explorer,
     search,
     demo,
+    auth,
+    onboarding,
+    tenants,
 )
 
 api_router = APIRouter()
+
+api_router.include_router(auth.router, prefix="/auth", tags=["Authentication & SaaS"])
+api_router.include_router(onboarding.router, prefix="/onboarding", tags=["Data Onboarding & Ingestion"])
+api_router.include_router(tenants.router, prefix="/tenants", tags=["Tenant & Settings"])
 
 api_router.include_router(overview.router)
 api_router.include_router(sales.router)
@@ -37,3 +44,4 @@ api_router.include_router(reports.router)
 api_router.include_router(explorer.router)
 api_router.include_router(search.router)
 api_router.include_router(demo.router)
+

@@ -6,6 +6,7 @@ class Product(Base):
     __tablename__ = "products"
 
     product_id: Mapped[str] = mapped_column(String(50), primary_key=True, index=True)
+    tenant_id: Mapped[str] = mapped_column(String(50), nullable=False, default="demo_tenant", index=True)
     product_name: Mapped[str] = mapped_column(String(150), nullable=False, index=True)
     category: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
     subcategory: Mapped[str] = mapped_column(String(50), nullable=False, index=True)

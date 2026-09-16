@@ -14,14 +14,22 @@ import {
   Database,
   ExternalLink,
   Code2,
-  ChevronRight
+  ChevronRight,
+  Zap,
+  Settings,
+  Building2,
+  LogIn
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 interface SidebarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
   onOpenLanding: () => void;
   onOpenArchitecture: () => void;
+  onOpenDataImport?: () => void;
+  onOpenOrgSettings?: () => void;
+  onOpenAuthModal?: (tab?: 'login' | 'register' | 'demo') => void;
   alertCount?: number;
 }
 
@@ -30,8 +38,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onTabChange,
   onOpenLanding,
   onOpenArchitecture,
+  onOpenDataImport,
+  onOpenOrgSettings,
+  onOpenAuthModal,
   alertCount = 12
 }) => {
+  const { tenant, isDemo, isLiveStreaming } = useAuth();
+
   const navGroups = [
     {
       category: 'Analytics',
@@ -118,22 +131,52 @@ export const Sidebar: React.FC<SidebarProps> = ({
         ))}
       </nav>
 
-      {/* Bottom Metadata & Portfolio Links */}
-      <div className="p-3 border-t border-slate-800 bg-slate-950/60 space-y-2">
-        {/* Active Demo Tenant */}
-        <div className="p-2.5 rounded-lg bg-slate-800/50 border border-slate-700/60 text-xs">
-          <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Demo Enterprise</div>
-          <div className="font-semibold text-white truncate mt-0.5">Vertex Retail Group</div>
-          <div className="text-[10px] text-slate-400 mt-0.5 flex items-center justify-between">
-            <span>20 Stores • 89k+ Txns</span>
-            <span className="text-emerald-400 font-mono">Live</span>
+      {/* Bottom Metadata & Workspace Controls */}
+      <div className="p-3 border-t border-slate-800 bg-slate-950/70 space-y-2">
+        {/* Active Tenant / Organization Badge */}
+        <div className="p-2.5 rounded-lg bg-slate-800/60 border border-slate-700/60 text-xs">
+          <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+            <span>{isDemo ? 'Public Demo' : 'Organization'}</span>
+            <span className={isLiveStreaming ? 'text-emerald-400 flex items-center gap-1 font-mono' : 'text-slate-400'}>
+              {isLiveStreaming && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />}
+              {isLiveStreaming ? 'Streaming' : 'Ready'}
+            </span>
+          </div>
+          <div className="font-bold text-white truncate mt-1 flex items-center gap-1.5">
+            <Building2 className="w-3.5 h-3.5 text-brand-400 shrink-0" />
+            <span className="truncate">{tenant?.name || 'Vertex Retail Group'}</span>
+          </div>
+          <div className="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+            <span>Currency: <strong className="text-slate-300">{tenant?.currency || 'INR'}</strong></span>
+            {isDemo && onOpenAuthModal && (
+              <button
+                onClick={() => onOpenAuthModal('register')}
+                className="text-cyan-400 hover:text-cyan-300 font-semibold"
+              >
+                + Connect Store
+              </button>
+            )}
           </div>
         </div>
+
+        {/* Action: Data Ingest & Live Stream */}
+        {onOpenDataImport && (
+          <button
+            onClick={onOpenDataImport}
+            className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-200 hover:text-white bg-slate-800/50 hover:bg-slate-800 rounded-lg transition-colors border border-slate-700/70"
+          >
+            <span className="flex items-center space-x-2">
+              <Zap className="w-3.5 h-3.5 text-amber-400" />
+              <span>Import Data / Live Stream</span>
+            </span>
+            <ChevronRight className="w-3 h-3 text-slate-500" />
+          </button>
+        )}
 
         {/* Website & Architecture Switchers */}
         <button
           onClick={onOpenLanding}
-          className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800/80 rounded-lg transition-colors border border-transparent hover:border-slate-700"
+          className="w-full flex items-center justify-between px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/80 rounded-lg transition-colors"
         >
           <span className="flex items-center space-x-2">
             <ExternalLink className="w-3.5 h-3.5 text-brand-400" />
@@ -144,7 +187,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         <button
           onClick={onOpenArchitecture}
-          className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800/80 rounded-lg transition-colors border border-transparent hover:border-slate-700"
+          className="w-full flex items-center justify-between px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/80 rounded-lg transition-colors"
         >
           <span className="flex items-center space-x-2">
             <Code2 className="w-3.5 h-3.5 text-indigo-400" />

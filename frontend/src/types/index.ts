@@ -285,3 +285,69 @@ export interface AlertsData {
   };
   alerts: AlertItem[];
 }
+
+// ==========================================
+// Multi-Tenant SaaS & Data Ingestion Types
+// ==========================================
+
+export interface UserOut {
+  id: string;
+  tenant_id: string;
+  email: string;
+  full_name: string;
+  role: string;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface TenantOut {
+  id: string;
+  name: string;
+  slug: string;
+  industry?: string;
+  currency: string;
+  currency_symbol?: string;
+  number_format?: string;
+  plan_tier?: string;
+  plan?: string;
+  is_demo?: boolean;
+  is_active?: boolean;
+  created_at?: string;
+  settings?: Record<string, any>;
+  api_key?: string;
+}
+
+export interface AuthResponse {
+  access_token: string;
+  token_type: string;
+  expires_in_hours: number;
+  user: UserOut;
+  tenant: TenantOut;
+}
+
+export interface IngestionSummary {
+  status: string;
+  tenant_id: string;
+  transactions_ingested: number;
+  stores_detected: number;
+  products_detected: number;
+  total_revenue: number;
+  date_span: {
+    start: string | null;
+    end: string | null;
+  };
+  errors_logged: number;
+}
+
+export interface SimulatedTransaction {
+  transaction_id: string;
+  store_name: string;
+  product_name: string;
+  quantity: number;
+  revenue: number;
+  gross_profit: number;
+  margin_pct: number;
+  transaction_date: string;
+  timestamp: string;
+}
+

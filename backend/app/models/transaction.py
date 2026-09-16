@@ -6,6 +6,7 @@ class Transaction(Base):
     __tablename__ = "transactions"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    tenant_id: Mapped[str] = mapped_column(String(50), nullable=False, default="demo_tenant", index=True)
     transaction_id: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
     transaction_date: Mapped[str] = mapped_column(String(20), nullable=False, index=True)
     

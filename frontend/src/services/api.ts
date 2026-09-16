@@ -1,10 +1,36 @@
 import axios from 'axios';
-import { FilterState, ExecutiveOverviewData, SalesAnalyticsData, StoreItem, ProductItem, CustomerData, InventoryData, ProfitabilityData, AlertsData, FilterOptions } from '../types';
+import {
+  FilterState,
+  ExecutiveOverviewData,
+  SalesAnalyticsData,
+  StoreItem,
+  ProductItem,
+  CustomerData,
+  InventoryData,
+  ProfitabilityData,
+  AlertsData,
+  FilterOptions,
+  UserOut,
+  TenantOut,
+  AuthResponse,
+  IngestionSummary,
+  SimulatedTransaction
+} from '../types';
 
 const apiClient = axios.create({
   baseURL: '/api',
-  timeout: 30000,
+  timeout: 45000,
 });
+
+// Auto-attach JWT Bearer token if present
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('retailpulse_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 
 function serializeFilters(filters: FilterState): Record<string, string> {
   const params: Record<string, string> = {};
@@ -175,5 +201,108 @@ export const api = {
   getCsvExportUrl: (filters: FilterState): string => {
     const query = new URLSearchParams(serializeFilters(filters));
     return `/api/reports/csv?${query.toString()}`;
+  },
+
+  // ==========================================
+  // Authentication & Multi-Tenant SaaS
+  // ==========================================
+  login: async (payload: { email: string; password: string }): Promise<AuthResponse> => {
+    const res = await apiClient.post('/auth/login', payload);
+    return res.data;
+  },
+
+  register: async (payload: {
+    company_name: string;
+    full_name: string;
+    email: string;
+    password: string;
+    industry?: string;
+    currency?: string;
+    currency_symbol?: string;
+    number_format?: string;
+  }): Promise<AuthResponse> => {
+    const res = await apiClient.post('/auth/register', payload);
+    return res.data;
+  },
+
+  getMe: async (): Promise<{ user: UserOut; tenant: TenantOut }> => {
+    const res = await apiClient.get('/auth/me');
+    return res.data;
+  },
+
+  getDemoSession: async (): Promise<AuthResponse> => {
+    const res = await apiClient.post('/auth/demo-session');
+    return res.data;
+  },
+
+  // ==========================================
+  // Tenant Settings & Team
+  // ==========================================
+  getCurrentTenant: async (): Promise<TenantOut> => {
+    const res = await apiClient.get('/tenants/current');
+    return res.data;
+  },
+
+  updateCurrentTenant: async (payload: {
+    name?: string;
+    industry?: string;
+    currency?: string;
+    currency_symbol?: string;
+    number_format?: string;
+  }): Promise<TenantOut> => {
+    const res = await apiClient.patch('/tenants/current', payload);
+    return res.data;
+  },
+
+  regenerateApiKey: async (): Promise<{ api_key: string }> => {
+    const res = await apiClient.post('/tenants/api-key');
+    return res.data;
+  },
+
+  getTeamMembers: async (): Promise<UserOut[]> => {
+    const res = await apiClient.get('/tenants/team');
+    return res.data;
+  },
+
+  inviteTeamMember: async (payload: {
+    email: string;
+    full_name: string;
+    role?: string;
+    password?: string;
+  }): Promise<UserOut> => {
+    const res = await apiClient.post('/tenants/invite', payload);
+    return res.data;
+  },
+
+  // ==========================================
+  // Data Ingestion & Live POS Streaming
+  // ==========================================
+  uploadCsv: async (file: File): Promise<IngestionSummary> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await apiClient.post('/onboarding/upload-csv', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return res.data;
+  },
+
+  seedSampleData: async (preset = 'retail'): Promise<IngestionSummary> => {
+    const res = await apiClient.post('/onboarding/seed-sample-data', null, {
+      params: { preset }
+    });
+    return res.data;
+  },
+
+  simulateLiveTransaction: async (): Promise<SimulatedTransaction> => {
+    const res = await apiClient.post('/onboarding/simulate-live-transaction');
+    return res.data;
+  },
+
+  resetTenantData: async (): Promise<{ status: string; message: string; rows_deleted: number }> => {
+    const res = await apiClient.delete('/onboarding/reset-tenant-data');
+    return res.data;
   }
 };
+

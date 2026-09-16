@@ -24,6 +24,7 @@ import { ArchitectureModal } from './ArchitectureModal';
 
 interface LandingPageProps {
   onExploreDemo: () => void;
+  onOpenAuth?: (tab?: 'login' | 'register' | 'demo') => void;
 }
 
 // Ground-truth fallback dataset for immediate flicker-free telemetry render
@@ -66,7 +67,7 @@ const VERIFIED_DEFAULTS = {
   ]
 };
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo, onOpenAuth }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [motionPending, setMotionPending] = useState(true);
   const [currentTime, setCurrentTime] = useState<string>('');
@@ -644,6 +645,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo }) => {
               <div className="vantage-time-value">{currentTime || 'Syncing clock...'}</div>
             </div>
 
+            {onOpenAuth && (
+              <button
+                type="button"
+                onClick={() => onOpenAuth('login')}
+                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-slate-200 hover:text-white hover:bg-white/10 rounded-full transition-colors border border-white/15"
+              >
+                Sign In
+              </button>
+            )}
+
             <button className="vantage-sign-up" type="button" onClick={onExploreDemo}>
               <Zap className="w-3.5 h-3.5 fill-current text-white" />
               <span>Launch Demo</span>
@@ -688,6 +699,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onExploreDemo }) => {
                 <span>Enter Command Center</span>
                 <ArrowRight className="w-4 h-4 text-white" />
               </button>
+
+              {onOpenAuth && (
+                <button
+                  className="vantage-secondary-cta"
+                  type="button"
+                  onClick={() => onOpenAuth('register')}
+                >
+                  <Sparkles className="w-4 h-4 text-cyan-400" />
+                  <span>Start Free Trial</span>
+                </button>
+              )}
 
               <button
                 className="vantage-secondary-cta"

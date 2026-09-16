@@ -152,6 +152,7 @@ def test_cross_filtering_consistency():
 
     db = SessionLocal()
     direct_north_rev = db.query(func.sum(Transaction.net_sales)).filter(
+        Transaction.tenant_id == "demo_tenant",
         Transaction.region == "North",
         Transaction.transaction_date >= "2026-01-01",
         Transaction.transaction_date <= "2026-12-31"
